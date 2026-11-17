@@ -1,0 +1,4391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>血液ガス検定（完全整合版）</title>
+<style>
+  :root {
+    --bg-dark: #090d16;
+    --panel-bg: #1e293b;
+    --card-inner: #0f172a;
+    --border-col: #334155;
+    --text-main: #f8fafc;
+    --text-sub: #cbd5e1;
+    --accent-blue: #38bdf8;
+    --accent-green: #4ade80;
+    --accent-red: #f87171;
+    --accent-yellow: #facc15;
+    --accent-purple: #c084fc;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 10px;
+    overflow-x: hidden;
+  }
+
+  .app-wrapper {
+    margin: 0 auto;
+    transition: max-width 0.2s ease;
+  }
+
+  /* =========================================================
+     画面サイズ別レスポンシブ＆文字サイズ最大化設計
+     ========================================================= */
+  /* ① 21〜23インチPC画面モード */
+  body.mode-23inch .app-wrapper { max-width: 1680px; padding: 6px 16px; }
+  body.mode-23inch .main-grid { display: grid; grid-template-columns: 1.05fr 1.25fr; gap: 22px; }
+  body.mode-23inch .title-area h1 { font-size: 1.85rem; }
+  body.mode-23inch .card-title { font-size: 1.35rem; }
+  body.mode-23inch .patient-scenario { font-size: 1.22rem; line-height: 1.65; padding: 16px; }
+  body.mode-23inch .vital-chip { font-size: 1.1rem; padding: 8px 14px; }
+  body.mode-23inch .lab-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; }
+  body.mode-23inch .lab-label { font-size: 0.95rem; }
+  body.mode-23inch .lab-val { font-size: 1.5rem; }
+  body.mode-23inch .step-summary-bar { font-size: 1.18rem; padding: 14px 16px; }
+  body.mode-23inch .step-choice-btn { font-size: 1.15rem; padding: 13px 16px; }
+  body.mode-23inch .tab-btn { font-size: 1.15rem; padding: 14px 12px; }
+  body.mode-23inch .mcq-option { font-size: 1.15rem; padding: 14px 16px; }
+  body.mode-23inch .btn-submit { font-size: 1.25rem; padding: 16px; }
+  body.mode-23inch .explanation-box, body.mode-23inch .feedback-list { font-size: 1.12rem; }
+  body.mode-23inch .mode-tab-btn { font-size: 1.25rem; padding: 15px; }
+  body.mode-23inch .manual-input-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
+  body.mode-23inch .m-field label { font-size: 0.9rem; }
+  body.mode-23inch .m-field input, body.mode-23inch .m-field select { font-size: 1.3rem; padding: 8px 10px; }
+  body.mode-23inch .btn-quick-decode, body.mode-23inch .btn-step-drill { font-size: 1.18rem; padding: 16px; }
+  body.mode-23inch .decode-step-card { font-size: 1.1rem; }
+  body.mode-23inch .decode-step-card h4 { font-size: 1.15rem; }
+  body.mode-23inch .f-tab-btn { font-size: 1.05rem; padding: 11px 10px; }
+  body.mode-23inch .f-item-label { font-size: 0.98rem; }
+  body.mode-23inch .f-item-main { font-size: 1.18rem; }
+  body.mode-23inch .f-item-detail { font-size: 1.02rem; }
+  body.mode-23inch .formula-toggle { font-size: 1.05rem; }
+
+  /* ② 10インチタブレット画面モード */
+  body.mode-10inch .app-wrapper { max-width: 1140px; }
+  body.mode-10inch .main-grid { display: grid; grid-template-columns: 1fr 1.18fr; gap: 16px; }
+  body.mode-10inch .title-area h1 { font-size: 1.5rem; }
+  body.mode-10inch .card-title { font-size: 1.15rem; }
+  body.mode-10inch .patient-scenario { font-size: 1.05rem; padding: 14px; }
+  body.mode-10inch .vital-chip { font-size: 0.95rem; padding: 6px 12px; }
+  body.mode-10inch .lab-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 9px; }
+  body.mode-10inch .lab-label { font-size: 0.84rem; }
+  body.mode-10inch .lab-val { font-size: 1.25rem; }
+  body.mode-10inch .step-summary-bar { font-size: 1.02rem; padding: 12px 14px; }
+  body.mode-10inch .step-choice-btn { font-size: 1.0rem; padding: 11px 14px; }
+  body.mode-10inch .tab-btn { font-size: 1.0rem; padding: 12px 10px; }
+  body.mode-10inch .mcq-option { font-size: 1.0rem; padding: 12px 14px; }
+  body.mode-10inch .btn-submit { font-size: 1.1rem; padding: 14px; }
+  body.mode-10inch .explanation-box, body.mode-10inch .feedback-list { font-size: 0.98rem; }
+  body.mode-10inch .f-tab-btn { font-size: 0.94rem; padding: 9px 8px; }
+  body.mode-10inch .f-item-label { font-size: 0.88rem; }
+  body.mode-10inch .f-item-main { font-size: 1.04rem; }
+  body.mode-10inch .f-item-detail { font-size: 0.92rem; }
+  body.mode-10inch .formula-toggle { font-size: 0.95rem; }
+
+  /* ③ 6インチスマホ画面モード（文字最大化＆文字切れゼロ） */
+  body.mode-6inch { padding: 4px; }
+  body.mode-6inch .app-wrapper {
+    max-width: 430px;
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.8);
+  }
+  body.mode-6inch .main-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  body.mode-6inch .title-area h1 { font-size: 1.3rem; }
+  body.mode-6inch .card { padding: 11px; margin-bottom: 10px; }
+  body.mode-6inch .card-title { font-size: 1.05rem; }
+  body.mode-6inch .patient-scenario { font-size: 0.98rem; line-height: 1.55; padding: 11px; }
+  body.mode-6inch .vital-chip { font-size: 0.88rem; padding: 5px 9px; }
+  body.mode-6inch .lab-grid { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  body.mode-6inch .lab-label { font-size: 0.8rem; }
+  body.mode-6inch .lab-val { font-size: 1.15rem; }
+  body.mode-6inch .step-summary-bar { font-size: 0.96rem; padding: 11px 12px; }
+  body.mode-6inch .step-choice-btn { font-size: 0.95rem; padding: 11px 12px; }
+  body.mode-6inch .tab-btn { font-size: 0.92rem; padding: 10px 6px; }
+  body.mode-6inch .mcq-option { font-size: 0.95rem; padding: 11px 12px; }
+  body.mode-6inch .btn-submit { font-size: 1.02rem; padding: 14px; }
+  body.mode-6inch .explanation-box, body.mode-6inch .feedback-list { font-size: 0.94rem; }
+  body.mode-6inch .mode-tab-btn { font-size: 0.92rem; padding: 10px 6px; }
+  body.mode-6inch .manual-input-grid { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  body.mode-6inch .m-field { padding: 6px 8px; }
+  body.mode-6inch .m-field input, body.mode-6inch .m-field select { font-size: 1.0rem; min-height: 34px; }
+  body.mode-6inch .btn-quick-decode, body.mode-6inch .btn-step-drill { font-size: 0.95rem; padding: 12px 10px; flex: 1 1 100%; }
+  body.mode-6inch .formula-box { padding: 10px; }
+  body.mode-6inch .f-tab-btn { font-size: 0.84rem; padding: 8px 4px; }
+  body.mode-6inch .f-item-label { font-size: 0.84rem; }
+  body.mode-6inch .f-item-main { font-size: 0.96rem; }
+  body.mode-6inch .f-item-detail { font-size: 0.88rem; }
+  body.mode-6inch .formula-toggle { font-size: 0.9rem; }
+
+  /* 共通ヘッダー・コントロール */
+  header {
+    background: var(--panel-bg);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-col);
+    margin-bottom: 12px;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .title-area h1 { color: var(--accent-blue); font-weight: 800; }
+  .title-area p { font-size: 0.82rem; color: var(--text-sub); }
+
+  .screen-switcher {
+    display: flex;
+    background: var(--card-inner);
+    border: 1px solid var(--border-col);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-wrap: wrap;
+  }
+  .screen-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-sub);
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .screen-btn.active {
+    background: #0284c7;
+    color: #fff;
+  }
+
+  /* メインモード切替バー（検定ドリル vs 実測値Lab） */
+  .mode-switch-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .mode-tab-btn {
+    flex: 1;
+    background: var(--panel-bg);
+    color: var(--text-sub);
+    border: 2px solid var(--border-col);
+    padding: 12px 10px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s;
+  }
+  .mode-tab-btn.active {
+    background: rgba(56, 189, 248, 0.16);
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  select, button {
+    background: var(--card-inner);
+    color: var(--text-main);
+    border: 1px solid var(--border-col);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.96rem;
+    cursor: pointer;
+    min-height: 42px;
+  }
+  #levelFilter { flex: 1 1 180px; font-weight: bold; color: var(--accent-yellow); }
+  #caseSelect { flex: 2 1 240px; max-width: 100%; }
+  .nav-btns { display: flex; gap: 6px; flex: 1 1 130px; }
+  .nav-btns button { flex: 1; font-weight: bold; }
+
+  .card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-col);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-col);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    color: var(--accent-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    word-break: break-word;
+  }
+  .badge {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #0369a1;
+    color: #fff;
+  }
+
+  /* 単位切り替えバー */
+  .unit-toggle-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: #060911;
+    border: 1px solid var(--border-col);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .unit-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-sub);
+  }
+  .unit-pill-btn {
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: var(--accent-yellow);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: bold;
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .unit-pill-btn:hover {
+    border-color: var(--accent-blue);
+    color: #fff;
+  }
+
+  .patient-scenario {
+    background: var(--card-inner);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-blue);
+    margin-bottom: 12px;
+    word-break: break-word;
+  }
+  .vitals-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .vital-chip {
+    background: #060911;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: var(--accent-green);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: bold;
+    word-break: break-word;
+  }
+  .lab-grid { display: grid; }
+  .lab-item {
+    background: var(--card-inner);
+    padding: 9px 11px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .lab-label { color: var(--text-sub); word-break: break-word; }
+  .lab-val {
+    font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #fff;
+    margin-top: 3px;
+    word-break: break-word;
+  }
+  .lab-unit { font-size: 0.78rem; color: var(--text-sub); font-weight: normal; }
+
+  /* =========================================================
+     予測式・基準値シート（3タブ切替 ＋ 縦並びタップ開閉式）
+     ========================================================= */
+  .formula-toggle {
+    background: rgba(250, 204, 21, 0.14);
+    border: 1px solid var(--accent-yellow);
+    color: var(--accent-yellow);
+    padding: 5px 11px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+  }
+  .formula-toggle:hover {
+    background: rgba(250, 204, 21, 0.25);
+    color: #fff;
+  }
+  .formula-box {
+    display: none;
+    background: #060911;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid var(--accent-yellow);
+    margin-top: 10px;
+    margin-bottom: 12px;
+    color: #f8fafc;
+    word-break: break-word;
+  }
+  .f-tab-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .f-tab-btn {
+    flex: 1;
+    background: #0f172a;
+    color: var(--text-sub);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    min-height: 38px;
+    line-height: 1.25;
+    padding: 8px 6px;
+  }
+  .f-tab-btn.active {
+    background: rgba(250, 204, 21, 0.18);
+    color: var(--accent-yellow);
+    border-color: var(--accent-yellow);
+  }
+  .f-tab-pane {
+    display: none;
+  }
+  .f-tab-pane.active {
+    display: block;
+  }
+  .f-guide-note {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  .f-vert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .f-acc-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .f-acc-item.open {
+    border-color: var(--accent-yellow);
+    border-left-color: var(--accent-yellow);
+  }
+  .f-acc-btn {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    text-align: left;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-height: auto;
+  }
+  .f-acc-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+  .f-item-label {
+    color: var(--accent-blue);
+    font-weight: 800;
+  }
+  .f-item-main {
+    color: #ffffff;
+    font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, "Hiragino Kaku Gothic ProN", sans-serif;
+    line-height: 1.4;
+  }
+  .f-item-RightChip {
+    font-size: 0.76rem;
+    color: var(--accent-yellow);
+    background: rgba(250, 204, 21, 0.12);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .f-item-detail {
+    display: none;
+    padding: 10px 12px;
+    background: #090d16;
+    border-top: 1px dashed #334155;
+    color: #e2e8f0;
+    line-height: 1.5;
+  }
+  .f-acc-item.open .f-item-detail {
+    display: block;
+  }
+  .f-item-detail strong {
+    color: var(--accent-green);
+  }
+
+  /* Step 1〜5 アコーディオン */
+  .step-accordion {
+    background: var(--card-inner);
+    border: 1px solid var(--border-col);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .step-accordion.open {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 1px var(--accent-blue);
+  }
+  .step-summary-bar {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    word-break: break-word;
+  }
+  .step-summary-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+  .step-title-text {
+    font-weight: bold;
+    color: var(--accent-yellow);
+  }
+  .step-selected-preview {
+    color: var(--text-sub);
+    font-weight: normal;
+  }
+  .step-accordion.answered .step-selected-preview {
+    color: var(--accent-green);
+    font-weight: bold;
+  }
+  .step-chevron {
+    font-size: 0.85rem;
+    color: var(--accent-blue);
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(56, 189, 248, 0.12);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .step-drawer {
+    display: none;
+    padding: 10px 12px 12px 12px;
+    border-top: 1px solid var(--border-col);
+    background: #0b111e;
+  }
+  .step-accordion.open .step-drawer {
+    display: block;
+  }
+  .step-choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .step-choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #162032;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: var(--text-main);
+    line-height: 1.45;
+    text-align: left;
+    cursor: pointer;
+    white-space: normal;
+    word-break: break-word;
+    width: 100%;
+  }
+  .step-choice-btn:hover { border-color: var(--accent-blue); }
+  .step-choice-btn.selected {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: var(--accent-blue);
+    color: #fff;
+    font-weight: bold;
+  }
+  .radio-mark {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #64748b;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .step-choice-btn.selected .radio-mark {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    box-shadow: inset 0 0 0 3px #0f172a;
+  }
+
+  /* 原因病態・初期介入 タブ（複数選択チェックボックス対応） */
+  .tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: var(--card-inner);
+    color: var(--text-sub);
+    border: 1px solid var(--border-col);
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+  .tab-btn.active {
+    background: rgba(56, 189, 248, 0.18);
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 1px var(--accent-blue);
+  }
+  .tab-Status-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #64748b;
+    margin-right: 5px;
+  }
+  .tab-Status-dot.answered { background: var(--accent-green); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .multi-note {
+    font-size: 0.85rem;
+    color: var(--accent-yellow);
+    margin-bottom: 8px;
+  }
+
+  .mcq-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--card-inner);
+    border-radius: 8px;
+    border: 1px solid var(--border-col);
+    margin-bottom: 8px;
+    cursor: pointer;
+    line-height: 1.45;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .mcq-option:hover { background: #162032; border-color: var(--accent-blue); }
+  .mcq-option.checked {
+    background: rgba(56, 189, 248, 0.16);
+    border-color: var(--accent-blue);
+    font-weight: bold;
+  }
+  .mcq-option input[type="checkbox"] {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--accent-blue);
+  }
+
+  button.btn-submit {
+    width: 100%;
+    margin-top: 10px;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+  button.btn-submit:disabled {
+    background: #1e293b;
+    border-color: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+  }
+  button.btn-submit:not(:disabled) {
+    background: #0284c7;
+    border-color: #38bdf8;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.45);
+  }
+
+  .result-box {
+    display: none;
+    background: #060911;
+    border: 2px solid var(--accent-blue);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  .score-banner {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-col);
+  }
+  .feedback-list { margin-bottom: 12px; }
+  .feedback-item {
+    margin-bottom: 6px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    word-break: break-word;
+  }
+  .fb-ok { background: rgba(74, 222, 128, 0.12); color: #86efac; border-left: 4px solid var(--accent-green); }
+  .fb-ng { background: rgba(248, 113, 113, 0.12); color: #fca5a5; border-left: 4px solid var(--accent-red); }
+  .explanation-box {
+    background: #1e293b;
+    padding: 14px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-purple);
+    word-break: break-word;
+  }
+
+  /* 実測値Lab用スタイル */
+  .manual-input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .m-field {
+    background: var(--card-inner);
+    border: 1px solid var(--border-col);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .m-field.req { border-left: 3px solid var(--accent-blue); }
+  .m-field.opt { border-left: 3px solid var(--accent-purple); }
+  .m-field label {
+    font-size: 0.78rem;
+    color: var(--text-sub);
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .m-field input, .m-field select {
+    background: #060911;
+    border: 1px solid #334155;
+    color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 6px 8px;
+    border-radius: 6px;
+    width: 100%;
+    min-height: 38px;
+  }
+  .m-field input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+  }
+  .conv-subhint {
+    font-size: 0.72rem;
+    color: var(--accent-green);
+    margin-top: 3px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .lab-action-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-quick-decode {
+    flex: 1 1 180px;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    border: 1px solid #38bdf8;
+    color: #fff;
+    font-weight: 800;
+    padding: 13px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.02rem;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  }
+  .btn-step-drill {
+    flex: 1 1 180px;
+    background: linear-gradient(135deg, #7e22ce, #6b21a8);
+    border: 1px solid #c084fc;
+    color: #fff;
+    font-weight: 800;
+    padding: 13px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.02rem;
+    box-shadow: 0 4px 12px rgba(126, 34, 206, 0.35);
+  }
+  .preset-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .preset-chip {
+    background: #162032;
+    border: 1px solid #334155;
+    color: var(--accent-yellow);
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    min-height: auto;
+  }
+  .decode-step-card {
+    background: var(--card-inner);
+    border: 1px solid var(--border-col);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .decode-step-card h4 {
+    color: var(--accent-yellow);
+    margin-bottom: 4px;
+    font-size: 0.98rem;
+  }
+  .decode-badge {
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.18);
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body class="mode-23inch">
+
+<div class="app-wrapper">
+  <header>
+    <div class="top-bar">
+      <div class="title-area">
+        <h1>🩺 血液ガス検定</h1>
+        <p>5ステップ判読 ＋ 原因病態・初期介入ドリル（全60症例）＆ 実測値Lab</p>
+      </div>
+      <div class="screen-switcher">
+        <button type="button" class="screen-btn" id="btn6inch" onclick="setScreenMode('6inch')">📱 6インチ</button>
+        <button type="button" class="screen-btn" id="btn10inch" onclick="setScreenMode('10inch')">🖥️ 10インチ</button>
+        <button type="button" class="screen-btn active" id="btn23inch" onclick="setScreenMode('23inch')">🖥️ 21〜23インチPC</button>
+      </div>
+    </div>
+    <div class="controls" id="headerQuizControls">
+      <select id="levelFilter" onchange="filterCases()">
+        <option value="初級" selected>初級編No.01～No.20</option>
+        <option value="中級">中級編No.21～No.40</option>
+        <option value="上級">上級編No.41～No.60</option>
+        <option value="all">全症例No.01～No.60</option>
+      </select>
+      <select id="caseSelect" onchange="loadSelectedCase()"></select>
+      <div class="nav-btns">
+        <button type="button" onclick="prevCase()">◀ 前へ</button>
+        <button type="button" onclick="nextCase()">次へ ▶</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインモード切替バー -->
+  <div class="mode-switch-bar">
+    <button type="button" class="mode-tab-btn active" id="tabModeQuiz" onclick="switchAppMode('quiz')">
+      📚 検定ドリル（全60症例）
+    </button>
+    <button type="button" class="mode-tab-btn" id="tabModeLab" onclick="switchAppMode('lab')">
+      🧮 実測値Lab
+    </button>
+  </div>
+
+  <!-- ① 検定ドリル画面（60症例） -->
+  <div class="main-grid" id="quizMainGrid">
+    <div>
+      <div class="card">
+        <div class="card-title">
+          <span id="caseHeaderTitle">症例データを読み込んでいます...</span>
+          <span class="badge" id="caseLevelBadge">初級編No.01～No.20</span>
+        </div>
+        <div class="patient-scenario" id="caseScenario"></div>
+        <div class="vitals-bar" id="caseVitals"></div>
+
+        <div class="card-title" style="margin-top:12px;">
+          <span>検査データ</span>
+          <span class="formula-toggle" onclick="toggleFormula('formulaSheetQuiz')">💡 予測式・基準値シート</span>
+        </div>
+
+        <!-- 検定ドリル側：予測式・基準値シート -->
+        <div class="formula-box" id="formulaSheetQuiz"></div>
+
+        <!-- 検定ドリル用 単位切り替えバー -->
+        <div class="unit-toggle-bar">
+          <div class="unit-group">
+            <span>電解質単位：</span>
+            <button type="button" class="unit-pill-btn" id="btnQuizElecUnit" onclick="toggleElecUnit()">現在: mEq/L ⇄ 切替</button>
+          </div>
+          <div class="unit-group">
+            <span>乳酸(Lac)単位：</span>
+            <button type="button" class="unit-pill-btn" id="btnQuizLacUnit" onclick="toggleLacUnit()">現在: mmol/L ⇄ 切替</button>
+          </div>
+        </div>
+
+        <div class="lab-grid" id="caseLabs"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Part 1：Step-by-Step 血液ガス判読（タップして選択）</div>
+
+        <input type="hidden" id="ansStep1" value="">
+        <input type="hidden" id="ansStep2" value="">
+        <input type="hidden" id="ansStep3" value="">
+        <input type="hidden" id="ansStep4" value="">
+        <input type="hidden" id="ansStep5" value="">
+
+        <div id="stepsAccordionContainer"></div>
+
+        <div class="card-title" style="margin-top:18px;">Part 2：原因病態と初期介入の選択（複数選択可）</div>
+
+        <div class="tab-bar">
+          <button type="button" class="tab-btn active" id="tabBtnCause" onclick="switchMcqTab('cause')">
+            <span class="tab-Status-dot" id="dotCause"></span>① 考えられる原因病態
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnAction" onclick="switchMcqTab('action')">
+            <span class="tab-Status-dot" id="dotAction"></span>② 初期介入・対処法
+          </button>
+        </div>
+
+        <div id="paneCause" class="tab-pane active">
+          <div class="multi-note">※該当する病態を選択してください（複数選択可能）</div>
+          <div id="causeOptionsContainer"></div>
+        </div>
+        <div id="paneAction" class="tab-pane">
+          <div class="multi-note">※適切な初期介入を選択してください（複数選択可能）</div>
+          <div id="actionOptionsContainer"></div>
+        </div>
+
+        <button type="button" class="btn-submit" id="submitBtn" onclick="checkAnswers()" disabled>
+          未選択の項目があります（あと 7 項目）
+        </button>
+
+        <div class="result-box" id="resultBox">
+          <div class="score-banner" id="scoreBanner"></div>
+          <div class="feedback-list" id="feedbackList"></div>
+          <div class="explanation-box" id="explanationBox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 実測値Lab画面 -->
+  <div class="main-grid" id="labMainGrid" style="display:none;">
+    <div>
+      <div class="card">
+        <div class="card-title">
+          <span>実測値パラメーター入力</span>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <span class="formula-toggle" onclick="toggleFormula('formulaSheetLab')">💡 予測式・基準値シート</span>
+            <span class="badge" style="background:#7e22ce;">青枠＝必須5項目</span>
+          </div>
+        </div>
+
+        <!-- 実測値Lab側：予測式・基準値シート -->
+        <div class="formula-box" id="formulaSheetLab"></div>
+
+        <!-- 実測値Lab用 単位切り替え＆自動換算バー -->
+        <div class="unit-toggle-bar">
+          <div class="unit-group">
+            <span>電解質単位：</span>
+            <button type="button" class="unit-pill-btn" id="btnLabElecUnit" onclick="toggleElecUnit()">現在: mEq/L ⇄ 切替</button>
+          </div>
+          <div class="unit-group">
+            <span>乳酸(Lac)単位：</span>
+            <button type="button" class="unit-pill-btn" id="btnLabLacUnit" onclick="toggleLacUnit()">現在: mmol/L ⇄ 切替</button>
+          </div>
+        </div>
+
+        <div class="preset-bar">
+          <span style="font-size:0.78rem; color:#94a3b8; align-self:center;">サンプル読込：</span>
+          <button type="button" class="preset-chip" onclick="loadLabPreset('sepsis')">敗血症性ショック</button>
+          <button type="button" class="preset-chip" onclick="loadLabPreset('dka_vomit')">DKA＋嘔吐（3重障害）</button>
+          <button type="button" class="preset-chip" onclick="loadLabPreset('copd_diuretic')">COPD＋利尿薬</button>
+          <button type="button" class="preset-chip" onclick="loadLabPreset('heatstroke')">隠れ重症熱中症</button>
+        </div>
+
+        <div class="manual-input-grid">
+          <div class="m-field req">
+            <label><span>pH</span><span>7.35-7.45</span></label>
+            <input type="number" step="0.01" id="in_pH" value="7.18">
+          </div>
+          <div class="m-field req">
+            <label><span>PaCO2</span><span>mmHg</span></label>
+            <input type="number" step="0.1" id="in_PaCO2" value="44">
+          </div>
+          <div class="m-field req">
+            <label><span>HCO3-</span><span>mmol/L</span></label>
+            <input type="number" step="0.1" id="in_HCO3" value="16.0">
+          </div>
+          <div class="m-field req">
+            <label><span>Na+</span><span id="lblUnit_Na">mEq/L</span></label>
+            <input type="number" step="1" id="in_Na" value="143">
+          </div>
+          <div class="m-field req">
+            <label><span>Cl-</span><span id="lblUnit_Cl">mEq/L</span></label>
+            <input type="number" step="1" id="in_Cl" value="95">
+          </div>
+          <div class="m-field req">
+            <label><span>呼吸性変化の経過</span></label>
+            <select id="in_Chronicity">
+              <option value="acute">急性（数時間）</option>
+              <option value="chronic">慢性（数日以上）</option>
+            </select>
+          </div>
+
+          <div class="m-field opt">
+            <label><span>Alb (任意)</span><span>g/dL</span></label>
+            <input type="number" step="0.1" id="in_Alb" value="2.8" placeholder="4.0">
+          </div>
+          <div class="m-field opt">
+            <label><span>Lac (任意)</span><span id="lblUnit_Lac">mmol/L</span></label>
+            <input type="number" step="0.1" id="in_Lac" value="8.5" placeholder="未入力可" oninput="updateLabConvPreview()">
+            <div class="conv-subhint" id="convHint_Lac"></div>
+          </div>
+          <div class="m-field opt">
+            <label><span>K+ (任意)</span><span id="lblUnit_K">mEq/L</span></label>
+            <input type="number" step="0.1" id="in_K" value="4.9" placeholder="未入力可">
+          </div>
+          <div class="m-field opt">
+            <label><span>Ca2+ (任意)</span><span id="lblUnit_Ca">mmol/L</span></label>
+            <input type="number" step="0.01" id="in_Ca" value="" placeholder="1.15-1.30" oninput="updateLabConvPreview()">
+            <div class="conv-subhint" id="convHint_Ca"></div>
+          </div>
+          <div class="m-field opt">
+            <label><span>PaO2 (任意)</span><span>mmHg</span></label>
+            <input type="number" step="1" id="in_PaO2" value="72" placeholder="未入力可">
+          </div>
+          <div class="m-field opt">
+            <label><span>FiO2 (任意)</span><span>0.21-1.0</span></label>
+            <input type="number" step="0.01" id="in_FiO2" value="0.70" placeholder="0.21">
+          </div>
+        </div>
+
+        <div class="lab-action-bar">
+          <button type="button" class="btn-quick-decode" onclick="runQuickDecode()">
+            ⚡ すぐに結果を知りたい
+          </button>
+          <button type="button" class="btn-step-drill" onclick="startStepDrill()">
+            🧠 じっくり考えたい
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" id="labOutputCard">
+        <div class="card-title">
+          <span id="labStageTitle">解析・演習ステージ</span>
+          <span class="badge" id="labStageBadge">待機中</span>
+        </div>
+        <div id="labStageContent" style="color:var(--text-sub); padding:10px 4px;">
+          左側のパネルに血液ガス・電解質の数値を入力し、<strong>「⚡ すぐに結果を知りたい」</strong>または<strong>「🧠 じっくり考えたい」</strong>を選択してください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- メインプログラムスクリプト -->
+<script>
+window.allCases = [];
+let filteredCases = [];
+let currentIndex = 0;
+let drillCurrentRes = null;
+
+// 単位設定状態（電解質: "mEq/L" or "mmol/L"、乳酸: "mmol/L" or "mg/dL"）
+let currentElecUnit = "mEq/L";
+let currentLacUnit = "mmol/L";
+
+const levelLabelMap = {
+  "初級": "初級編No.01～No.20",
+  "中級": "中級編No.21～No.40",
+  "上級": "上級編No.41～No.60"
+};
+
+// 共通の「予測式・基準値シート」HTML生成（3タブ切替＋縦並び式のみ表示＋タップで詳細展開）
+function getFormulaSheetHTML(prefix) {
+  return `
+    <div class="f-tab-bar">
+      <button type="button" class="f-tab-btn active" id="${prefix}_btn_ref" onclick="switchFormulaInnerTab('${prefix}', 'ref')">📊 1. 基準値</button>
+      <button type="button" class="f-tab-btn" id="${prefix}_btn_ag" onclick="switchFormulaInnerTab('${prefix}', 'ag')">🧮 2. AG・補正計算</button>
+      <button type="button" class="f-tab-btn" id="${prefix}_btn_comp" onclick="switchFormulaInnerTab('${prefix}', 'comp')">⚖️ 3. 代償予測式</button>
+    </div>
+    <div class="f-guide-note">💡 各項目をタップすると、下に前提条件や詳細な解説が表示されます。</div>
+
+    <!-- タブ1：基準値 -->
+    <div class="f-tab-pane active" id="${prefix}_pane_ref">
+      <div class="f-vert-list">
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">pH</span>
+              <span class="f-item-main">7.35 〜 7.45（中央値 7.40）</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            &lt; 7.35：アシデミア（酸血症） ／ &gt; 7.45：アルカレミア（アルカリ血症）<br>
+            ※Henderson-Hasselbalch式：pH ＝ 6.10 ＋ log10[ HCO3- / (0.03 × PaCO2) ]
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">PaCO2</span>
+              <span class="f-item-main">35 〜 45 mmHg（中央値 40 mmHg）</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            &gt; 45 mmHg：呼吸性アシドーシス方向（肺胞低換気）<br>
+            &lt; 35 mmHg：呼吸性アルカローシス方向（肺胞過換気）
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">HCO3- / BE</span>
+              <span class="f-item-main">HCO3-：22 〜 26 mmol/L（中央値 24）<br>BE：-2.0 〜 +2.0 mmol/L</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            &lt; 22 mmol/L：代謝性アシドーシス方向<br>
+            &gt; 26 mmol/L：代謝性アルカローシス方向
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">アニオンギャップ (AG)</span>
+              <span class="f-item-main">10 〜 14 mEq/L（基準中央値 12）</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            &gt; 14 mEq/L：AG開大（乳酸・ケトン体・尿毒症物質・中毒物質などの不揮発性酸の蓄積）
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">Na+ / K+ / Cl-</span>
+              <span class="f-item-main">Na+：135〜145 ／ K+：3.5〜4.5 ／ Cl-：98〜106</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ※1価イオン（Na+, K+, Cl-, HCO3-）は <strong>1 mEq/L ＝ 1 mmol/L</strong> です。
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">イオン化Ca2+ / Alb</span>
+              <span class="f-item-main">Ca2+：1.15 〜 1.30 mmol/L（Alb基準 4.0 g/dL）</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ※Ca2+は2価イオンのため <strong>1 mmol/L ＝ 2 mEq/L</strong>（基準 2.30〜2.60 mEq/L）となります。アルカレミア、アルカリ剤急速投与、またはシュウ酸・クエン酸キレートでは遊離Ca2+が減少してテタニーや心収縮力低下を起こしやすくなります。
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">乳酸 (Lactate)</span>
+              <span class="f-item-main">&lt; 2.0 mmol/L（または &lt; 18 mg/dL）</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ※単位換算式：<strong>mg/dL ＝ mmol/L × 9.0</strong>（mmol/L ＝ mg/dL ÷ 9.0）
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- タブ2：AG・補正計算式 -->
+    <div class="f-tab-pane" id="${prefix}_pane_ag">
+      <div class="f-vert-list">
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">① 実測AG</span>
+              <span class="f-item-main">実測AG ＝ Na+ － (Cl- ＋ HCO3-)</span>
+            </div>
+            <span class="f-item-RightChip">前提条件 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            <strong>【前提条件】全症例でルーチンに必ず算出する</strong><br>
+            ※pHやHCO3-が正常に見えても、混合障害でAG開大型代謝性アシドーシスが隠れている場合があるため全例で計算します。
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">② 補正AG（アルブミン補正）</span>
+              <span class="f-item-main">補正AG ＝ 実測AG ＋ 2.5 × (4.0 － 実測Alb)</span>
+            </div>
+            <span class="f-item-RightChip">前提条件 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            <strong>【前提条件】低アルブミン血症（Alb &lt; 4.0 g/dL）がある場合に算出する</strong><br>
+            ※アルブミンは主要な陰イオンです。Albが 1 g/dL 低下するごとに見かけの実測AGが 2.5 mEq/L 低く算出され、酸の蓄積が見逃されるのを防ぎます。
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">③ 補正HCO3-</span>
+              <span class="f-item-main">補正HCO3- ＝ 実測HCO3- ＋ (AG － 12)</span>
+            </div>
+            <span class="f-item-RightChip">前提条件 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            <strong>【前提条件】AG開大（AG または 補正AG &gt; 14）を認める場合に算出する</strong><br>
+            ※AG開大型代謝性アシドーシスの背後に隠れている第2の代謝性異常を検出します。<br>
+            ・<strong>補正HCO3- &gt; 26 mmol/L</strong>：隠れた<strong>代謝性アルカローシス</strong>の合併<br>
+            ・<strong>補正HCO3- &lt; 22 mmol/L</strong>：隠れた<strong>非AG開大型（高Cl性）代謝性アシドーシス</strong>の合併
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">④ 簡易Stewart（Na-Cl較差）</span>
+              <span class="f-item-main">Na-Cl較差 ＝ Na+ － Cl- － 35</span>
+            </div>
+            <span class="f-item-RightChip">前提条件 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            <strong>【前提条件】Cl-異常による酸塩基平衡への影響を定量評価したいときに算出する</strong><br>
+            ・プラス（&gt; +3）：低Cl性代謝性アルカローシス傾向<br>
+            ・マイナス（&lt; -3）：高Cl性代謝性アシドーシス（NAGMA）傾向
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- タブ3：二次性代償の予測式 -->
+    <div class="f-tab-pane" id="${prefix}_pane_comp">
+      <div class="f-vert-list">
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">代謝性アシドーシス（HCO3- 低下）</span>
+              <span class="f-item-main">予測PaCO2 ＝ 40 － 1.2 × (24 － 実測HCO3-) ± 2</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・簡易式（Winter式の近似）：予測PaCO2 ≒ 実測HCO3- ＋ 15<br>
+            ・<strong>代償限界：PaCO2 10〜15 mmHg</strong><br>
+            ・実測PaCO2 ＞ 予測範囲：<strong>呼吸性アシドーシスの合併（代償不全）</strong><br>
+            ・実測PaCO2 ＜ 予測範囲：<strong>呼吸性アルカローシスの合併（代償超過）</strong>
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">代謝性アルカローシス（HCO3- 上昇）</span>
+              <span class="f-item-main">予測PaCO2 ＝ 40 ＋ 0.7 × (実測HCO3- － 24) ± 5</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・<strong>代償限界：PaCO2 60〜65 mmHg</strong><br>
+            ・実測PaCO2 ＞ 予測範囲：<strong>呼吸性アシドーシスの合併（代償不全）</strong><br>
+            ・実測PaCO2 ＜ 予測範囲：<strong>呼吸性アルカローシスの合併（代償超過）</strong>
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">急性呼吸性アシドーシス（PaCO2 &gt; 40）</span>
+              <span class="f-item-main">予測HCO3- ＝ 24 ＋ 0.1 × (PaCO2 － 40)</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・PaCO2が 10 mmHg 上昇するごとに HCO3- は 1 mmol/L 上昇します。<br>
+            ・<strong>急性の代償限界：HCO3- 30 mmol/L</strong>
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">慢性呼吸性アシドーシス（PaCO2 &gt; 40）</span>
+              <span class="f-item-main">予測HCO3- ＝ 24 ＋ 0.35 × (PaCO2 － 40)</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・数日かけて腎でのHCO3-再吸収とCl-排泄が進み、PaCO2が 10 mmHg 上昇するごとに HCO3- は 3.5 mmol/L 上昇します。<br>
+            ・<strong>慢性の代償限界：HCO3- 42〜45 mmol/L</strong>
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">急性呼吸性アルカローシス（PaCO2 &lt; 40）</span>
+              <span class="f-item-main">予測HCO3- ＝ 24 － 0.2 × (40 － PaCO2)</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・PaCO2が 10 mmHg 低下するごとに HCO3- は 2 mmol/L 低下します。<br>
+            ・<strong>急性の代償限界：HCO3- 16〜18 mmol/L</strong>
+          </div>
+        </div>
+
+        <div class="f-acc-item" onclick="toggleFormulaAccItem(this)">
+          <button type="button" class="f-acc-btn">
+            <div class="f-acc-stack">
+              <span class="f-item-label">慢性呼吸性アルカローシス（PaCO2 &lt; 40）</span>
+              <span class="f-item-main">予測HCO3- ＝ 24 － 0.4 × (40 － PaCO2)</span>
+            </div>
+            <span class="f-item-RightChip">詳細 ▼</span>
+          </button>
+          <div class="f-item-detail">
+            ・PaCO2が 10 mmHg 低下するごとに HCO3- は 4 mmol/L 低下します。<br>
+            ・<strong>慢性の代償限界：HCO3- 12 mmol/L</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFormulaSheets() {
+  const qBox = document.getElementById("formulaSheetQuiz");
+  const lBox = document.getElementById("formulaSheetLab");
+  if (qBox) qBox.innerHTML = getFormulaSheetHTML("fq");
+  if (lBox) lBox.innerHTML = getFormulaSheetHTML("fl");
+}
+
+function switchFormulaInnerTab(prefix, tabKey) {
+  ["ref", "ag", "comp"].forEach(k => {
+    const btn = document.getElementById(`${prefix}_btn_${k}`);
+    const pane = document.getElementById(`${prefix}_pane_${k}`);
+    if (btn) btn.classList.toggle("active", k === tabKey);
+    if (pane) pane.classList.toggle("active", k === tabKey);
+  });
+}
+
+function toggleFormulaAccItem(itemElem) {
+  const isOpen = itemElem.classList.contains("open");
+  itemElem.classList.toggle("open", !isOpen);
+  const chip = itemElem.querySelector(".f-item-RightChip");
+  if (chip) {
+    const isPrereq = chip.textContent.includes("前提");
+    chip.textContent = (!isOpen) ? "閉じる ▲" : (isPrereq ? "前提条件 ▼" : "詳細 ▼");
+  }
+}
+
+// 電解質単位（mEq/L ⇄ mmol/L）の切り替えと自動換算
+function toggleElecUnit() {
+  const prevUnit = currentElecUnit;
+  currentElecUnit = (currentElecUnit === "mEq/L") ? "mmol/L" : "mEq/L";
+
+  document.getElementById("btnQuizElecUnit").textContent = `現在: ${currentElecUnit} ⇄ 切替`;
+  document.getElementById("btnLabElecUnit").textContent = `現在: ${currentElecUnit} ⇄ 切替`;
+
+  document.getElementById("lblUnit_Na").textContent = currentElecUnit;
+  document.getElementById("lblUnit_K").textContent = currentElecUnit;
+  document.getElementById("lblUnit_Cl").textContent = currentElecUnit;
+
+  const caUnitLabel = document.getElementById("lblUnit_Ca");
+  const caInput = document.getElementById("in_Ca");
+  caUnitLabel.textContent = currentElecUnit;
+  caInput.placeholder = (currentElecUnit === "mmol/L") ? "1.15-1.30" : "2.30-2.60";
+
+  const caVal = parseFloat(caInput.value);
+  if (!isNaN(caVal)) {
+    if (prevUnit === "mmol/L" && currentElecUnit === "mEq/L") {
+      caInput.value = (caVal * 2.0).toFixed(2);
+    } else if (prevUnit === "mEq/L" && currentElecUnit === "mmol/L") {
+      caInput.value = (caVal / 2.0).toFixed(2);
+    }
+  }
+  updateLabConvPreview();
+
+  if (filteredCases.length > 0 && filteredCases[currentIndex]) {
+    updateLabsDisplayOnly(filteredCases[currentIndex]);
+  }
+}
+
+// 乳酸単位（mmol/L ⇄ mg/dL）の切り替えと自動換算（1 mmol/L = 9.0 mg/dL）
+function toggleLacUnit() {
+  const prevUnit = currentLacUnit;
+  currentLacUnit = (currentLacUnit === "mmol/L") ? "mg/dL" : "mmol/L";
+
+  document.getElementById("btnQuizLacUnit").textContent = `現在: ${currentLacUnit} ⇄ 切替`;
+  document.getElementById("btnLabLacUnit").textContent = `現在: ${currentLacUnit} ⇄ 切替`;
+  document.getElementById("lblUnit_Lac").textContent = currentLacUnit;
+
+  const lacInput = document.getElementById("in_Lac");
+  const lacVal = parseFloat(lacInput.value);
+  if (!isNaN(lacVal)) {
+    if (prevUnit === "mmol/L" && currentLacUnit === "mg/dL") {
+      lacInput.value = (lacVal * 9.0).toFixed(1);
+    } else if (prevUnit === "mg/dL" && currentLacUnit === "mmol/L") {
+      lacInput.value = (lacVal / 9.0).toFixed(1);
+    }
+  }
+  updateLabConvPreview();
+
+  if (filteredCases.length > 0 && filteredCases[currentIndex]) {
+    updateLabsDisplayOnly(filteredCases[currentIndex]);
+  }
+}
+
+function updateLabConvPreview() {
+  const lacHint = document.getElementById("convHint_Lac");
+  const caHint = document.getElementById("convHint_Ca");
+  if (lacHint) lacHint.textContent = "";
+  if (caHint) caHint.textContent = "";
+}
+
+// 検定ドリルの検査データ欄の表示変換（選択中の単位の数値のみスマートに表示）
+function formatQuizLabItem(key, rawVal) {
+  const str = String(rawVal);
+
+  if (key === "Na" || key === "K" || key === "Cl") {
+    return { valText: str, unitText: currentElecUnit };
+  }
+
+  if (key.includes("尿") && str.includes("mEq/L")) {
+    return { valText: str.replace("mEq/L", currentElecUnit), unitText: "" };
+  }
+
+  if (key.includes("Ca2+")) {
+    const m = str.match(/^([0-9.]+)\s*mmol\/L(.*)$/);
+    if (m) {
+      const num = parseFloat(m[1]);
+      const rest = m[2] || "";
+      if (currentElecUnit === "mEq/L") {
+        return { valText: `${(num * 2.0).toFixed(2)}${rest}`, unitText: "mEq/L" };
+      } else {
+        return { valText: `${num.toFixed(2)}${rest}`, unitText: "mmol/L" };
+      }
+    }
+  }
+
+  if (key.includes("Lac")) {
+    const m = str.match(/^([0-9.]+)\s*mmol\/L(.*)$/);
+    if (m) {
+      const num = parseFloat(m[1]);
+      let rest = m[2] || "";
+      if (currentLacUnit === "mg/dL") {
+        rest = rest.replace(/([0-9.]+)/g, (match) => (parseFloat(match) * 9.0).toFixed(1));
+        return { valText: `${(num * 9.0).toFixed(1)}${rest}`, unitText: "mg/dL" };
+      } else {
+        return { valText: `${num}${rest}`, unitText: "mmol/L" };
+      }
+    }
+  }
+
+  const unitMap = {
+    pH: "", PaCO2: "mmHg", PaO2: "mmHg", HCO3: "mmol/L", BE: "mmol/L",
+    Alb: "g/dL", Glu: "mg/dL"
+  };
+  const defaultUnit = unitMap[key] !== undefined ? unitMap[key] : "";
+  return { valText: str, unitText: defaultUnit };
+}
+
+function updateLabsDisplayOnly(c) {
+  const labsContainer = document.getElementById("caseLabs");
+  labsContainer.innerHTML = "";
+  Object.entries(c.labs).forEach(([key, val]) => {
+    const item = document.createElement("div");
+    item.className = "lab-item";
+    const formatted = formatQuizLabItem(key, val);
+    item.innerHTML = `<span class="lab-label">${key}</span><span class="lab-val">${formatted.valText} <span class="lab-unit">${formatted.unitText}</span></span>`;
+    labsContainer.appendChild(item);
+  });
+}
+
+function getStepDefinitions(caseLevel) {
+  const isBasic = (caseLevel === "初級");
+
+  const step1Opts = [
+    "アシデミア（pH < 7.35）",
+    "基準範囲内（pH 7.35〜7.45）",
+    "アルカレミア（pH > 7.45）"
+  ];
+
+  const step2Opts = isBasic ? [
+    "代謝性アシドーシス",
+    "代謝性アルカローシス",
+    "呼吸性アシドーシス",
+    "呼吸性アルカローシス",
+    "pH基準範囲内＋酸性側シフト：呼吸性アシドーシス（慢性代償完了）",
+    "pH基準範囲内＋アルカリ側シフト：呼吸性アルカローシス（慢性代償完了）"
+  ] : [
+    "代謝性アシドーシス",
+    "代謝性アルカローシス",
+    "呼吸性アシドーシス",
+    "呼吸性アルカローシス",
+    "pH正常域（7.35〜7.39）＋酸性側シフト：呼吸性アシドーシス優位",
+    "pH正常域（7.35〜7.39）＋酸性側シフト：代謝性アシドーシス優位",
+    "pH正常域（7.41〜7.45）＋アルカリ側シフト：呼吸性アルカローシス優位",
+    "pH正常域（7.41〜7.45）＋アルカリ側シフト：代謝性アルカローシス優位",
+    "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害"
+  ];
+
+  const step3Opts = [
+    "AG開大",
+    "AG正常"
+  ];
+
+  const step4Opts = isBasic ? [
+    "予測範囲内の適切な呼吸性代償",
+    "急性の代償範囲内（緩衝系による初期代償）",
+    "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）"
+  ] : [
+    "予測範囲内の適切な呼吸性代償",
+    "急性の代償範囲内（緩衝系による初期代償）",
+    "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    "代償不全：呼吸性アシドーシスの合併",
+    "代償超過：呼吸性アルカローシスの合併",
+    "代償範囲外：代謝性アルカローシスの合併",
+    "代償範囲外：代謝性アシドーシスの合併",
+    "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）"
+  ];
+
+  const step5Opts = isBasic ? [
+    "単一障害（隠れた第2・第3の代謝性異常なし）",
+    "高Cl性（NAGMA）とK変動を伴う単一障害",
+    "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）"
+  ] : [
+    "単一障害（隠れた第2・第3の代謝性異常なし）",
+    "高Cl性（NAGMA）とK変動を伴う単一障害",
+    "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    "嘔吐（低Cl性アルカローシス）と下痢（高Cl性NAGMA）の相殺＋低K血症"
+  ];
+
+  return [
+    { num: 1, title: "Step 1：pHの評価", options: step1Opts },
+    { num: 2, title: "Step 2：主病態（一次性変化）の判定", options: step2Opts },
+    { num: 3, title: "Step 3：アニオンギャップ（AG）の評価", options: step3Opts },
+    { num: 4, title: "Step 4：二次性代償反応の評価", options: step4Opts },
+    { num: 5, title: "Step 5：補正HCO3-・電解質シフトの評価", options: step5Opts }
+  ];
+}
+
+function setScreenMode(mode) {
+  const body = document.body;
+  body.classList.remove("mode-6inch", "mode-10inch", "mode-23inch");
+  body.classList.add("mode-" + mode);
+
+  document.getElementById("btn6inch").classList.toggle("active", mode === "6inch");
+  document.getElementById("btn10inch").classList.toggle("active", mode === "10inch");
+  document.getElementById("btn23inch").classList.toggle("active", mode === "23inch");
+}
+
+function switchAppMode(mode) {
+  const isQuiz = (mode === "quiz");
+  document.getElementById("tabModeQuiz").classList.toggle("active", isQuiz);
+  document.getElementById("tabModeLab").classList.toggle("active", !isQuiz);
+  document.getElementById("quizMainGrid").style.display = isQuiz ? "grid" : "none";
+  document.getElementById("labMainGrid").style.display = isQuiz ? "none" : "grid";
+  document.getElementById("headerQuizControls").style.display = isQuiz ? "flex" : "none";
+}
+
+function initSimulator() {
+  renderFormulaSheets();
+  if (window.innerWidth <= 540) {
+    setScreenMode("6inch");
+  } else if (window.innerWidth <= 1200) {
+    setScreenMode("10inch");
+  } else {
+    setScreenMode("23inch");
+  }
+  document.getElementById("lblUnit_Ca").textContent = currentElecUnit;
+  updateLabConvPreview();
+  filterCases();
+}
+
+function filterCases() {
+  const level = document.getElementById("levelFilter").value;
+  if (level === "all") {
+    filteredCases = window.allCases;
+  } else {
+    filteredCases = window.allCases.filter(c => c.level === level);
+  }
+  const select = document.getElementById("caseSelect");
+  select.innerHTML = "";
+  filteredCases.forEach((c, idx) => {
+    const opt = document.createElement("option");
+    opt.value = idx;
+    opt.textContent = c.title;
+    select.appendChild(opt);
+  });
+  currentIndex = 0;
+  if (filteredCases.length > 0) {
+    renderCase(filteredCases[0]);
+  }
+}
+
+function loadSelectedCase() {
+  const idx = parseInt(document.getElementById("caseSelect").value, 10);
+  currentIndex = idx;
+  renderCase(filteredCases[currentIndex]);
+}
+
+function prevCase() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    document.getElementById("caseSelect").value = currentIndex;
+    renderCase(filteredCases[currentIndex]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function nextCase() {
+  if (currentIndex < filteredCases.length - 1) {
+    currentIndex++;
+    document.getElementById("caseSelect").value = currentIndex;
+    renderCase(filteredCases[currentIndex]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function toggleFormula(targetId) {
+  const id = targetId || "formulaSheetQuiz";
+  const box = document.getElementById(id);
+  if (!box) return;
+  box.style.display = (box.style.display === "block") ? "none" : "block";
+}
+
+function toggleStepDrawer(stepNum) {
+  const acc = document.getElementById("accStep" + stepNum);
+  const isOpen = acc.classList.contains("open");
+  document.querySelectorAll("#stepsAccordionContainer .step-accordion").forEach(el => {
+    el.classList.remove("open");
+    const ch = el.querySelector(".step-chevron");
+    if (ch) ch.textContent = el.classList.contains("answered") ? "変更 ▼" : "選択 ▼";
+  });
+  if (!isOpen) {
+    acc.classList.add("open");
+    document.getElementById("chevStep" + stepNum).textContent = "閉じる ▲";
+  }
+}
+
+function selectStepOption(stepNum, val, btnElem) {
+  document.getElementById("ansStep" + stepNum).value = val;
+
+  const acc = document.getElementById("accStep" + stepNum);
+  acc.querySelectorAll(".step-choice-btn").forEach(b => b.classList.remove("selected"));
+  btnElem.classList.add("selected");
+
+  acc.classList.add("answered");
+  acc.classList.remove("open");
+  document.getElementById("prevStep" + stepNum).textContent = "✔ " + val;
+  document.getElementById("chevStep" + stepNum).textContent = "変更 ▼";
+
+  if (stepNum < 5) {
+    const nextVal = document.getElementById("ansStep" + (stepNum + 1)).value;
+    if (!nextVal) {
+      toggleStepDrawer(stepNum + 1);
+    }
+  }
+  updateProgressState();
+}
+
+function switchMcqTab(tabName) {
+  document.getElementById("tabBtnCause").classList.toggle("active", tabName === "cause");
+  document.getElementById("tabBtnAction").classList.toggle("active", tabName === "action");
+  document.getElementById("paneCause").classList.toggle("active", tabName === "cause");
+  document.getElementById("paneAction").classList.toggle("active", tabName === "action");
+}
+
+function onCheckboxChange(cbElem) {
+  cbElem.closest(".mcq-option").classList.toggle("checked", cbElem.checked);
+  updateProgressState();
+}
+
+function updateProgressState() {
+  const s1 = document.getElementById("ansStep1").value;
+  const s2 = document.getElementById("ansStep2").value;
+  const s3 = document.getElementById("ansStep3").value;
+  const s4 = document.getElementById("ansStep4").value;
+  const s5 = document.getElementById("ansStep5").value;
+  const cChecked = document.querySelectorAll('input[name="mcqCause"]:checked');
+  const aChecked = document.querySelectorAll('input[name="mcqAction"]:checked');
+
+  document.getElementById("dotCause").className = "tab-Status-dot" + (cChecked.length > 0 ? " answered" : "");
+  document.getElementById("dotAction").className = "tab-Status-dot" + (aChecked.length > 0 ? " answered" : "");
+
+  let answeredCount = 0;
+  if (s1) answeredCount++;
+  if (s2) answeredCount++;
+  if (s3) answeredCount++;
+  if (s4) answeredCount++;
+  if (s5) answeredCount++;
+  if (cChecked.length > 0) answeredCount++;
+  if (aChecked.length > 0) answeredCount++;
+
+  const remain = 7 - answeredCount;
+  const submitBtn = document.getElementById("submitBtn");
+  if (remain === 0) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "回答を採点する（7点満点）";
+  } else {
+    submitBtn.disabled = true;
+    submitBtn.textContent = `未選択の項目があります（あと ${remain} 項目選択で採点可能）`;
+  }
+}
+
+function renderCase(c) {
+  document.getElementById("caseHeaderTitle").textContent = c.title;
+  document.getElementById("caseLevelBadge").textContent = levelLabelMap[c.level] || c.level;
+  document.getElementById("caseScenario").textContent = c.scenario;
+
+  const vitalsContainer = document.getElementById("caseVitals");
+  vitalsContainer.innerHTML = "";
+  c.vitals.split("|").forEach(v => {
+    const chip = document.createElement("div");
+    chip.className = "vital-chip";
+    chip.textContent = v.trim();
+    vitalsContainer.appendChild(chip);
+  });
+
+  updateLabsDisplayOnly(c);
+
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("ansStep" + i).value = "";
+  }
+  const stepsContainer = document.getElementById("stepsAccordionContainer");
+  stepsContainer.innerHTML = "";
+  const stepDefs = getStepDefinitions(c.level);
+
+  stepDefs.forEach(def => {
+    const acc = document.createElement("div");
+    acc.className = "step-accordion";
+    acc.id = "accStep" + def.num;
+
+    const summaryBtn = document.createElement("button");
+    summaryBtn.type = "button";
+    summaryBtn.className = "step-summary-bar";
+    summaryBtn.onclick = () => toggleStepDrawer(def.num);
+    summaryBtn.innerHTML = `
+      <div class="step-summary-left">
+        <span class="step-title-text">${def.title}</span>
+        <span class="step-selected-preview" id="prevStep${def.num}">タップして選択肢を表示...</span>
+      </div>
+      <span class="step-chevron" id="chevStep${def.num}">選択 ▼</span>
+    `;
+
+    const drawer = document.createElement("div");
+    drawer.className = "step-drawer";
+    const list = document.createElement("div");
+    list.className = "step-choice-list";
+
+    def.options.forEach(optVal => {
+      const choiceBtn = document.createElement("button");
+      choiceBtn.type = "button";
+      choiceBtn.className = "step-choice-btn";
+      choiceBtn.onclick = () => selectStepOption(def.num, optVal, choiceBtn);
+      choiceBtn.innerHTML = `<span class="radio-mark"></span><span>${optVal}</span>`;
+      list.appendChild(choiceBtn);
+    });
+
+    drawer.appendChild(list);
+    acc.appendChild(summaryBtn);
+    acc.appendChild(drawer);
+    stepsContainer.appendChild(acc);
+  });
+
+  const causeContainer = document.getElementById("causeOptionsContainer");
+  const actionContainer = document.getElementById("actionOptionsContainer");
+  causeContainer.innerHTML = "";
+  actionContainer.innerHTML = "";
+
+  c.causeOptions.forEach((optText, idx) => {
+    const labelCause = document.createElement("label");
+    labelCause.className = "mcq-option";
+    labelCause.innerHTML = `<input type="checkbox" name="mcqCause" value="${idx}" onchange="onCheckboxChange(this)"> <span>${idx + 1}. ${optText}</span>`;
+    causeContainer.appendChild(labelCause);
+  });
+
+  c.actionOptions.forEach((optText, idx) => {
+    const labelAction = document.createElement("label");
+    labelAction.className = "mcq-option";
+    labelAction.innerHTML = `<input type="checkbox" name="mcqAction" value="${idx}" onchange="onCheckboxChange(this)"> <span>${idx + 1}. ${optText}</span>`;
+    actionContainer.appendChild(labelAction);
+  });
+
+  switchMcqTab("cause");
+  updateProgressState();
+  document.getElementById("resultBox").style.display = "none";
+}
+
+function isStepMatch(stepNum, userVal, correctVal, c) {
+  if (!userVal) return false;
+  if (userVal === correctVal) return true;
+
+  if (stepNum === 3) {
+    if (correctVal.startsWith("AG開大") && userVal.startsWith("AG開大")) return true;
+    if (correctVal.startsWith("AG正常") && userVal.startsWith("AG正常")) return true;
+  }
+
+  const isNormalPh = (c.step1 === "基準範囲内（pH 7.35〜7.45）");
+  if (stepNum === 2 && isNormalPh) {
+    if (correctVal.includes("呼吸性アシドーシス") && userVal.includes("呼吸性アシドーシス")) return true;
+    if (correctVal.includes("呼吸性アルカローシス") && userVal.includes("呼吸性アルカローシス")) return true;
+    if (correctVal.includes("代謝性アシドーシス") && (userVal.includes("代謝性アシドーシス") || userVal.includes("完全拮抗"))) return true;
+    if (correctVal.includes("代謝性アルカローシス") && (userVal.includes("代謝性アルカローシス") || userVal.includes("完全拮抗"))) return true;
+    if (correctVal.includes("完全拮抗") && (userVal.includes("代謝性") || userVal.includes("完全拮抗"))) return true;
+  }
+  if (stepNum === 4 && isNormalPh) {
+    if (correctVal.includes("見かけ上正常") && userVal === "予測範囲内の適切な呼吸性代償") return true;
+    if (correctVal === "予測範囲内の適切な呼吸性代償" && userVal.includes("見かけ上正常")) return true;
+  }
+  if (stepNum === 5) {
+    if (correctVal.includes("イオン化Ca低下") && userVal.includes("イオン化Ca低下")) return true;
+    if (correctVal.includes("高Cl性（NAGMA）") && userVal.includes("高Cl性（NAGMA）")) return true;
+    if (correctVal.includes("嘔吐（低Cl性アルカローシス）と下痢") && userVal.includes("低Cl・低K血症")) return true;
+  }
+  return false;
+}
+
+function isMultiMatch(selectedIndices, correctProp) {
+  const correctArr = Array.isArray(correctProp) ? correctProp : [correctProp];
+  if (selectedIndices.length !== correctArr.length) return false;
+  const s1 = [...selectedIndices].sort();
+  const s2 = [...correctArr].sort();
+  return s1.every((val, i) => val === s2[i]);
+}
+
+function formatMultiLabels(indices, optionsArr) {
+  const arr = Array.isArray(indices) ? indices : [indices];
+  return arr.map(i => `(${i + 1}) ${optionsArr[i]}`).join(" ／ ");
+}
+
+function checkAnswers() {
+  const c = filteredCases[currentIndex];
+  if (!c) return;
+
+  const u1 = document.getElementById("ansStep1").value;
+  const u2 = document.getElementById("ansStep2").value;
+  const u3 = document.getElementById("ansStep3").value;
+  const u4 = document.getElementById("ansStep4").value;
+  const u5 = document.getElementById("ansStep5").value;
+
+  const uCauseArr = Array.from(document.querySelectorAll('input[name="mcqCause"]:checked')).map(el => parseInt(el.value, 10));
+  const uActionArr = Array.from(document.querySelectorAll('input[name="mcqAction"]:checked')).map(el => parseInt(el.value, 10));
+
+  const normStep3Correct = c.step3.startsWith("AG開大") ? "AG開大" : "AG正常";
+
+  const checks = [
+    { label: "Step 1 (pH判定)", user: u1, correct: c.step1, isOk: u1 === c.step1 },
+    { label: "Step 2 (主病態)", user: u2, correct: c.step2, isOk: isStepMatch(2, u2, c.step2, c) },
+    { label: "Step 3 (AG評価)", user: u3, correct: normStep3Correct, isOk: isStepMatch(3, u3, normStep3Correct, c) },
+    { label: "Step 4 (代償・混合評価)", user: u4, correct: c.step4, isOk: isStepMatch(4, u4, c.step4, c) },
+    { label: "Step 5 (電解質・複合評価)", user: u5, correct: c.step5, isOk: isStepMatch(5, u5, c.step5, c) },
+    {
+      label: "① 考えられる原因病態",
+      user: formatMultiLabels(uCauseArr, c.causeOptions),
+      correct: formatMultiLabels(c.correctCause, c.causeOptions),
+      isOk: isMultiMatch(uCauseArr, c.correctCause)
+    },
+    {
+      label: "② 初期介入・対処法",
+      user: formatMultiLabels(uActionArr, c.actionOptions),
+      correct: formatMultiLabels(c.correctAction, c.actionOptions),
+      isOk: isMultiMatch(uActionArr, c.correctAction)
+    }
+  ];
+
+  let score = 0;
+  const fbList = document.getElementById("feedbackList");
+  fbList.innerHTML = "";
+
+  checks.forEach(chk => {
+    if (chk.isOk) score++;
+    const div = document.createElement("div");
+    div.className = "feedback-item " + (chk.isOk ? "fb-ok" : "fb-ng");
+    div.innerHTML = `<strong>${chk.isOk ? "✔ 正解" : "✖ 不正解"} [${chk.label}]</strong><br>あなたの回答：${chk.user} ${chk.isOk ? "" : `<br>👉 正解：<strong>${chk.correct}</strong>`}`;
+    fbList.appendChild(div);
+  });
+
+  const banner = document.getElementById("scoreBanner");
+  banner.textContent = `採点結果： ${score} / 7 点 ${score === 7 ? "🎉 血液ガス検定 満点合格！" : ""}`;
+  banner.style.color = score === 7 ? "#4ade80" : (score >= 5 ? "#facc15" : "#f87171");
+
+  document.getElementById("explanationBox").innerHTML = c.explanation;
+  const resBox = document.getElementById("resultBox");
+  resBox.style.display = "block";
+  resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// =========================================================
+// 実測値Lab（「すぐに結果を知りたい」/「じっくり考えたい」）関数群
+// =========================================================
+function loadLabPreset(type) {
+  const p = {
+    sepsis:       { pH:7.18, PaCO2:44, HCO3:16.0, Na:143, Cl:95, chr:"acute",   Alb:2.8, Lac:8.5, K:4.9, Ca:"",   PaO2:72,  FiO2:0.70 },
+    dka_vomit:    { pH:7.12, PaCO2:12, HCO3:3.8,  Na:134, Cl:94, chr:"acute",   Alb:4.0, Lac:3.7, K:4.6, Ca:"",   PaO2:118, FiO2:0.21 },
+    copd_diuretic:{ pH:7.49, PaCO2:62, HCO3:46.0, Na:136, Cl:78, chr:"chronic", Alb:3.9, Lac:1.0, K:2.8, Ca:"",   PaO2:66,  FiO2:0.26 },
+    heatstroke:   { pH:7.36, PaCO2:41, HCO3:22.8, Na:138, Cl:95, chr:"acute",   Alb:4.0, Lac:7.1, K:3.3, Ca:"",   PaO2:64,  FiO2:0.21 }
+  }[type];
+  if (!p) return;
+  document.getElementById("in_pH").value = p.pH;
+  document.getElementById("in_PaCO2").value = p.PaCO2;
+  document.getElementById("in_HCO3").value = p.HCO3;
+  document.getElementById("in_Na").value = p.Na;
+  document.getElementById("in_Cl").value = p.Cl;
+  document.getElementById("in_Chronicity").value = p.chr;
+  document.getElementById("in_Alb").value = p.Alb;
+  document.getElementById("in_Lac").value = (currentLacUnit === "mg/dL") ? (p.Lac * 9.0).toFixed(1) : p.Lac;
+  document.getElementById("in_K").value = p.K;
+  if (p.Ca === "") {
+    document.getElementById("in_Ca").value = "";
+  } else {
+    document.getElementById("in_Ca").value = (currentElecUnit === "mEq/L") ? (p.Ca * 2.0).toFixed(2) : p.Ca;
+  }
+  document.getElementById("in_PaO2").value = p.PaO2;
+  document.getElementById("in_FiO2").value = p.FiO2;
+  updateLabConvPreview();
+}
+
+function analyzeBloodGas() {
+  const pH = parseFloat(document.getElementById("in_pH").value);
+  const PaCO2 = parseFloat(document.getElementById("in_PaCO2").value);
+  const HCO3 = parseFloat(document.getElementById("in_HCO3").value);
+  const Na = parseFloat(document.getElementById("in_Na").value);
+  const Cl = parseFloat(document.getElementById("in_Cl").value);
+  const chr = document.getElementById("in_Chronicity").value;
+
+  if ([pH, PaCO2, HCO3, Na, Cl].some(isNaN)) {
+    alert("必須の5項目（pH, PaCO2, HCO3-, Na+, Cl-）に数値を入力してください。");
+    return null;
+  }
+
+  const AlbVal = parseFloat(document.getElementById("in_Alb").value);
+  const Alb = isNaN(AlbVal) ? 4.0 : AlbVal;
+
+  const rawLac = parseFloat(document.getElementById("in_Lac").value);
+  const Lac = isNaN(rawLac) ? NaN : (currentLacUnit === "mg/dL" ? rawLac / 9.0 : rawLac);
+
+  const K = parseFloat(document.getElementById("in_K").value);
+
+  const rawCa = parseFloat(document.getElementById("in_Ca").value);
+  const Ca = isNaN(rawCa) ? NaN : (currentElecUnit === "mEq/L" ? rawCa / 2.0 : rawCa);
+
+  const PaO2 = parseFloat(document.getElementById("in_PaO2").value);
+  const FiO2Val = parseFloat(document.getElementById("in_FiO2").value);
+  const FiO2 = isNaN(FiO2Val) ? 0.21 : FiO2Val;
+
+  let step1Ans = "";
+  let step1Desc = "";
+  if (pH < 7.35) {
+    step1Ans = "アシデミア（pH < 7.35）";
+    step1Desc = `pH ${pH.toFixed(2)} ＜ 7.35 のため<strong>アシデミア（酸血症）</strong>です。`;
+  } else if (pH > 7.45) {
+    step1Ans = "アルカレミア（pH > 7.45）";
+    step1Desc = `pH ${pH.toFixed(2)} ＞ 7.45 のため<strong>アルカレミア（アルカリ血症）</strong>です。`;
+  } else {
+    step1Ans = "基準範囲内（pH 7.35〜7.45）";
+    const dir = pH < 7.40 ? "酸性側（7.40未満）" : (pH > 7.40 ? "アルカリ側（7.40超）" : "完全中央（7.40）");
+    step1Desc = `pH ${pH.toFixed(2)} は<strong>基準範囲内（${dir}）</strong>です。正常、慢性代償完了、または逆方向の混合障害による相殺を考えます。`;
+  }
+
+  const rawAG = Na - (Cl + HCO3);
+  const corrAG = rawAG + 2.5 * (4.0 - Alb);
+  const effectiveAG = (Alb < 4.0) ? corrAG : rawAG;
+  const isAgOpen = effectiveAG > 14.0;
+  const step3Ans = isAgOpen ? "AG開大" : "AG正常";
+  let step3Desc = `・実測AG ＝ ${Na} － (${Cl} ＋ ${HCO3.toFixed(1)}) ＝ <strong>${rawAG.toFixed(1)} ${currentElecUnit}</strong>`;
+  if (Alb < 4.0) {
+    step3Desc += `<br>・低Alb血症（${Alb.toFixed(1)} g/dL ＜ 4.0）があるため補正AGを算出：<br> 補正AG ＝ ${rawAG.toFixed(1)} ＋ 2.5 × (4.0 － ${Alb.toFixed(1)}) ＝ <strong>${corrAG.toFixed(1)} ${currentElecUnit}</strong>`;
+  } else if (Alb > 4.0) {
+    step3Desc += `<br>・Alb補正AG ＝ ${corrAG.toFixed(1)} ${currentElecUnit}`;
+  }
+  step3Desc += `<br>→ 判定：<strong>${step3Ans}</strong>（基準値 12±2 ${currentElecUnit}）`;
+  if (!isNaN(Lac)) {
+    const dispLac = (currentLacUnit === "mg/dL") ? `${(Lac * 9.0).toFixed(1)} mg/dL` : `${Lac.toFixed(1)} mmol/L`;
+    step3Desc += `<br>・乳酸値：<strong>${dispLac}</strong> ${Lac >= 2.0 ? "（乳酸上昇あり）" : "（正常範囲）"}`;
+  }
+
+  let primaryType = "";
+  let step2Ans = "";
+  let step2Desc = "";
+
+  if (pH < 7.35) {
+    if (PaCO2 > 45 && HCO3 >= 20) {
+      primaryType = "RAc";
+      step2Ans = "呼吸性アシドーシス";
+    } else if (HCO3 < 22 && PaCO2 <= 45) {
+      primaryType = "MAc";
+      step2Ans = "代謝性アシドーシス";
+    } else {
+      if (HCO3 < 20 || isAgOpen) {
+        primaryType = "MAc";
+        step2Ans = "代謝性アシドーシス";
+      } else {
+        primaryType = "RAc";
+        step2Ans = "呼吸性アシドーシス";
+      }
+    }
+  } else if (pH > 7.45) {
+    if (PaCO2 < 35 && HCO3 <= 26) {
+      primaryType = "RAlk";
+      step2Ans = "呼吸性アルカローシス";
+    } else if (HCO3 > 26 && PaCO2 >= 35) {
+      primaryType = "MAlk";
+      step2Ans = "代謝性アルカローシス";
+    } else {
+      if (PaCO2 < 28) {
+        primaryType = "RAlk";
+        step2Ans = "呼吸性アルカローシス";
+      } else {
+        primaryType = "MAlk";
+        step2Ans = "代謝性アルカローシス";
+      }
+    }
+  } else {
+    // pH 7.35 〜 7.45
+    if (isAgOpen && PaCO2 >= 35 && HCO3 >= 20) {
+      primaryType = "NormalMix";
+      step2Ans = "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害";
+    } else if (PaCO2 > 45 && HCO3 > 26) {
+      primaryType = (pH <= 7.40) ? "RAc" : "MAlk";
+      step2Ans = (pH <= 7.40)
+        ? "pH正常域（7.35〜7.39）＋酸性側シフト：呼吸性アシドーシス優位"
+        : "pH正常域（7.41〜7.45）＋アルカリ側シフト：代謝性アルカローシス優位";
+    } else if (PaCO2 < 35 && HCO3 < 22) {
+      primaryType = (pH >= 7.41) ? "RAlk" : "MAc";
+      step2Ans = (pH >= 7.41)
+        ? "pH正常域（7.41〜7.45）＋アルカリ側シフト：呼吸性アルカローシス優位"
+        : "pH正常域（7.35〜7.39）＋酸性側シフト：代謝性アシドーシス優位";
+    } else {
+      primaryType = "NormalMix";
+      step2Ans = "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害";
+    }
+  }
+  step2Desc = `PaCO2 ${PaCO2.toFixed(1)} mmHg、HCO3- ${HCO3.toFixed(1)} mmol/L、AG ${effectiveAG.toFixed(1)} より、主病態は <strong>${step2Ans}</strong> と判定します。`;
+
+  let step4Ans = "";
+  let step4Desc = "";
+
+  if (primaryType === "MAc") {
+    const expPCO2 = 40 - 1.2 * (24 - HCO3);
+    const low = expPCO2 - 2.2;
+    const high = expPCO2 + 2.2;
+    step4Desc = `【代謝性アシドーシスの呼吸性代償予測】<br>予測PaCO2 ＝ 40 － 1.2 × (24 － ${HCO3.toFixed(1)}) ＝ <strong>${expPCO2.toFixed(1)} ± 2 mmHg</strong>（実測 ${PaCO2.toFixed(1)} mmHg）<br>`;
+    if (PaCO2 > high) {
+      step4Ans = "代償不全：呼吸性アシドーシスの合併";
+      step4Desc += `→ 実測PaCO2が予測より高いため、<strong>${step4Ans}（換気不全・呼吸筋疲労等）</strong>と判定します。`;
+    } else if (PaCO2 < low) {
+      step4Ans = "代償超過：呼吸性アルカローシスの合併";
+      step4Desc += `→ 実測PaCO2が予測よりさらに低いため、<strong>${step4Ans}（中枢刺激・低酸素・疼痛過換気等）</strong>と判定します。`;
+    } else {
+      step4Ans = "予測範囲内の適切な呼吸性代償";
+      step4Desc += `→ 予測値と一致しており、<strong>${step4Ans}</strong>が働いています。`;
+    }
+  } else if (primaryType === "MAlk") {
+    const expPCO2 = 40 + 0.7 * (HCO3 - 24);
+    const low = expPCO2 - 5.0;
+    const high = expPCO2 + 5.0;
+    step4Desc = `【代謝性アルカローシスの呼吸性代償予測】<br>予測PaCO2 ＝ 40 ＋ 0.7 × (${HCO3.toFixed(1)} － 24) ＝ <strong>${expPCO2.toFixed(1)} ± 5 mmHg</strong>（実測 ${PaCO2.toFixed(1)} mmHg）<br>`;
+    if (PaCO2 > high || PaCO2 >= 60) {
+      step4Ans = "代償不全：呼吸性アシドーシスの合併";
+      step4Desc += `→ 実測PaCO2が代償予測・代償限界を超えて高く、<strong>${step4Ans}</strong>があります。`;
+    } else if (PaCO2 < low) {
+      step4Ans = "代償超過：呼吸性アルカローシスの合併";
+      step4Desc += `→ 実測PaCO2が予測より低く、<strong>${step4Ans}</strong>があります。`;
+    } else {
+      step4Ans = "予測範囲内の適切な呼吸性代償";
+      step4Desc += `→ 予測範囲内であり、<strong>${step4Ans}</strong>です。`;
+    }
+  } else if (primaryType === "RAc") {
+    const expAcute = 24 + 0.1 * (PaCO2 - 40);
+    const expChronic = 24 + 0.35 * (PaCO2 - 40);
+    const targetExp = (chr === "chronic") ? expChronic : expAcute;
+    step4Desc = `【呼吸性アシドーシスの代謝性代償予測】<br>・急性予測HCO3- ＝ 24 ＋ 0.1×(${PaCO2.toFixed(1)}－40) ＝ <strong>${expAcute.toFixed(1)} mmol/L</strong><br>・慢性予測HCO3- ＝ 24 ＋ 0.35×(${PaCO2.toFixed(1)}－40) ＝ <strong>${expChronic.toFixed(1)} mmol/L</strong>（実測 ${HCO3.toFixed(1)} mmol/L）<br>`;
+    if (Math.abs(HCO3 - expAcute) <= 2.2 && chr === "acute") {
+      step4Ans = "急性の代償範囲内（緩衝系による初期代償）";
+    } else if (Math.abs(HCO3 - expChronic) <= 3.0 && chr === "chronic") {
+      step4Ans = "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）";
+    } else if (HCO3 > targetExp + 2.5) {
+      step4Ans = "代償範囲外：代謝性アルカローシスの合併";
+    } else if (HCO3 < targetExp - 2.5) {
+      step4Ans = "代償範囲外：代謝性アシドーシスの合併";
+    } else {
+      step4Ans = (chr === "chronic") ? "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）" : "急性の代償範囲内（緩衝系による初期代償）";
+    }
+    step4Desc += `→ 判定：<strong>${step4Ans}</strong>`;
+  } else if (primaryType === "RAlk") {
+    const expAcute = 24 - 0.2 * (40 - PaCO2);
+    const expChronic = 24 - 0.4 * (40 - PaCO2);
+    const targetExp = (chr === "chronic") ? expChronic : expAcute;
+    step4Desc = `【呼吸性アルカローシスの代謝性代償予測】<br>・急性予測HCO3- ＝ 24 － 0.2×(40－${PaCO2.toFixed(1)}) ＝ <strong>${expAcute.toFixed(1)} mmol/L</strong><br>・慢性予測HCO3- ＝ 24 － 0.4×(40－${PaCO2.toFixed(1)}) ＝ <strong>${expChronic.toFixed(1)} mmol/L</strong>（実測 ${HCO3.toFixed(1)} mmol/L）<br>`;
+    if (HCO3 > targetExp + 1.5) {
+      step4Ans = "代償範囲外：代謝性アルカローシスの合併";
+    } else if (HCO3 < targetExp - 2.0) {
+      step4Ans = "代償範囲外：代謝性アシドーシスの合併";
+    } else if (chr === "chronic") {
+      step4Ans = "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）";
+    } else {
+      step4Ans = "急性の代償範囲内（緩衝系による初期代償）";
+    }
+    step4Desc += `→ 判定：<strong>${step4Ans}</strong>`;
+  } else {
+    step4Ans = "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）";
+    step4Desc = `PaCO2・HCO3-ともに見かけ上正常範囲ですが、電解質やAGの収支から<strong>${step4Ans}</strong>または正常状態と評価します。`;
+  }
+
+  const deltaAG = effectiveAG - 12.0;
+  const corrHCO3 = HCO3 + deltaAG;
+  const stewartDiff = Na - Cl - 35;
+  let step5Ans = "";
+  let step5Desc = `・簡易Stewart（Na+ － Cl- － 35）＝ ${Na} － ${Cl} － 35 ＝ <strong>${stewartDiff >= 0 ? "+" : ""}${stewartDiff.toFixed(1)} ${currentElecUnit}</strong> `;
+  step5Desc += stewartDiff > 3 ? "（低Cl性アルカローシス傾向）" : (stewartDiff < -3 ? "（高Cl性アシドーシス傾向）" : "（Na-Clバランス正常）");
+
+  if (!isNaN(Ca) && Ca < 1.00) {
+    step5Ans = "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）";
+    if (isAgOpen) {
+      step5Desc += `<br>・補正HCO3- ＝ 実測HCO3- (${HCO3.toFixed(1)}) ＋ ΔAG (${deltaAG.toFixed(1)}) ＝ <strong>${corrHCO3.toFixed(1)} mmol/L</strong>`;
+    }
+    step5Desc += `<br>・イオン化Ca低下（${Ca.toFixed(2)} mmol/L ＜ 1.00）を認めるため、<strong>${step5Ans}</strong>と評価します。`;
+  } else if (isAgOpen) {
+    step5Desc += `<br>・AG開大（${effectiveAG.toFixed(1)} ＞ 14）を認めるため補正HCO3-を算出：<br> 補正HCO3- ＝ 実測HCO3- (${HCO3.toFixed(1)}) ＋ ΔAG (${deltaAG.toFixed(1)}) ＝ <strong>${corrHCO3.toFixed(1)} mmol/L</strong><br>`;
+    if (corrHCO3 > 26.0) {
+      step5Ans = "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）";
+      step5Desc += `→ 補正HCO3- ＞ 26 のため、嘔吐・利尿薬・低Alb等による<strong>${step5Ans}</strong>が存在します。`;
+    } else if (corrHCO3 < 22.0) {
+      step5Ans = "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）";
+      step5Desc += `→ 補正HCO3- ＜ 22 のため、生食負荷・下痢・腎尿細管障害等による<strong>${step5Ans}</strong>が存在します。`;
+    } else {
+      step5Ans = "単一障害（隠れた第2・第3の代謝性異常なし）";
+      step5Desc += `→ 補正HCO3-は22〜26の範囲内であり、他の代謝性異常は隠れていません。`;
+    }
+  } else {
+    if (primaryType === "NormalMix" && !isNaN(K) && K < 3.5) {
+      step5Ans = "嘔吐（低Cl性アルカローシス）と下痢（高Cl性NAGMA）の相殺＋低K血症";
+    } else if (primaryType === "MAc" || stewartDiff <= -4) {
+      step5Ans = "高Cl性（NAGMA）とK変動を伴う単一障害";
+    } else if (primaryType === "MAlk" || (stewartDiff >= 4 && !isNaN(K) && K < 3.5)) {
+      step5Ans = "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害";
+    } else {
+      step5Ans = "単一障害（隠れた第2・第3の代謝性異常なし）";
+    }
+    step5Desc += `<br>・AG開大がないため補正HCO3-の算出は不要です。<br>→ 総合判定：<strong>${step5Ans}</strong>`;
+  }
+
+  let extraNotes = [];
+  if (!isNaN(PaO2)) {
+    const pf = PaO2 / FiO2;
+    const PAO2 = (760 - 47) * FiO2 - (PaCO2 / 0.8);
+    const AaDO2 = PAO2 - PaO2;
+    extraNotes.push(`<strong>【酸素化解析】</strong> P/F比 ＝ <strong>${pf.toFixed(0)}</strong> ｜ 予測肺胞気酸素分圧(PAO2) ＝ ${PAO2.toFixed(0)} mmHg ｜ A-aDO2 ＝ <strong>${AaDO2.toFixed(1)} mmHg</strong> ${AaDO2 > 20 ? "（開大：拡散障害・V/Qミスマッチ・シャントを示唆）" : "（正常域：低酸素があれば純粋な肺胞低換気）"}`);
+  }
+  if (!isNaN(K)) {
+    if (K >= 6.0) extraNotes.push(`<strong>【⚠️ 高K血症アラート（K ${K} ${currentElecUnit}）】</strong> 直ちに12誘導心電図を確認し、グルコン酸カルシウム静注・GI療法等の適応を評価してください。`);
+    if (K < 3.0) extraNotes.push(`<strong>【⚠️ 重度低K血症アラート（K ${K} ${currentElecUnit}）】</strong> アシドーシス補正（重曹やインスリン）を先行すると致死的低K血症を招くため、K補充を最優先してください。`);
+  }
+  if (!isNaN(Ca) && Ca < 1.00) {
+    const dispCa = (currentElecUnit === "mEq/L") ? `${(Ca * 2.0).toFixed(2)} mEq/L` : `${Ca.toFixed(2)} mmol/L`;
+    extraNotes.push(`<strong>【⚠️ 低イオン化Caアラート（Ca2+ ${dispCa}）】</strong> テタニー・痙攣・心収縮力低下・QT延長リスクがあります。`);
+  }
+
+  return {
+    step1Ans, step1Desc,
+    step2Ans, step2Desc,
+    step3Ans, step3Desc,
+    step4Ans, step4Desc,
+    step5Ans, step5Desc,
+    extraHtml: extraNotes.length > 0 ? `<div class="decode-step-card" style="border-left-color:var(--accent-green);"><h4>プラスα：酸素化・電解質リスク評価</h4>${extraNotes.join("<br>")}</div>` : ""
+  };
+}
+
+function buildFullDecodeHTML(res) {
+  return `
+    <div class="decode-step-card">
+      <h4>Step 1：pHの評価</h4>
+      <div class="decode-badge">${res.step1Ans}</div>
+      <div>${res.step1Desc}</div>
+    </div>
+    <div class="decode-step-card">
+      <h4>Step 2：主病態（一次性変化）の特定</h4>
+      <div class="decode-badge">${res.step2Ans}</div>
+      <div>${res.step2Desc}</div>
+    </div>
+    <div class="decode-step-card">
+      <h4>Step 3：アニオンギャップ（AG / 補正AG）</h4>
+      <div class="decode-badge">${res.step3Ans}</div>
+      <div>${res.step3Desc}</div>
+    </div>
+    <div class="decode-step-card">
+      <h4>Step 4：二次性代償反応の評価</h4>
+      <div class="decode-badge">${res.step4Ans}</div>
+      <div>${res.step4Desc}</div>
+    </div>
+    <div class="decode-step-card">
+      <h4>Step 5：補正HCO3-・簡易Stewart（Na-Cl差）</h4>
+      <div class="decode-badge">${res.step5Ans}</div>
+      <div>${res.step5Desc}</div>
+    </div>
+    ${res.extraHtml}
+  `;
+}
+
+function runQuickDecode() {
+  const res = analyzeBloodGas();
+  if (!res) return;
+  document.getElementById("labStageTitle").textContent = "⚡ すぐに結果を知りたい（自動解析レポート）";
+  const badge = document.getElementById("labStageBadge");
+  badge.textContent = "解析完了";
+  badge.style.background = "#0284c7";
+
+  const stage = document.getElementById("labStageContent");
+  stage.innerHTML = buildFullDecodeHTML(res);
+  document.getElementById("labOutputCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function startStepDrill() {
+  const res = analyzeBloodGas();
+  if (!res) return;
+  drillCurrentRes = res;
+
+  document.getElementById("labStageTitle").textContent = "🧠 じっくり考えたい（実測値5ステップ推論）";
+  const badge = document.getElementById("labStageBadge");
+  badge.textContent = "演習モード";
+  badge.style.background = "#7e22ce";
+
+  const defs = getStepDefinitions("上級");
+  let html = `
+    <p style="margin-bottom:10px; color:var(--text-sub); font-size:0.9rem;">
+      入力された数値をもとに、Step 1〜Step 5を順番に選択して採点ボタンを押してください。
+    </p>
+    <input type="hidden" id="drillAns1" value="">
+    <input type="hidden" id="drillAns2" value="">
+    <input type="hidden" id="drillAns3" value="">
+    <input type="hidden" id="drillAns4" value="">
+    <input type="hidden" id="drillAns5" value="">
+  `;
+
+  defs.forEach(d => {
+    const optsHtml = d.options.map(optVal =>
+      `<button type="button" class="step-choice-btn" data-opt="${optVal.replace(/"/g, '&quot;')}" onclick="selectDrillOption(${d.num}, this)"><span class="radio-mark"></span><span>${optVal}</span></button>`
+    ).join("");
+
+    html += `
+      <div class="step-accordion" id="drillAcc${d.num}">
+        <button type="button" class="step-summary-bar" onclick="toggleDrillDrawer(${d.num})">
+          <div class="step-summary-left">
+            <span class="step-title-text">${d.title}</span>
+            <span class="step-selected-preview" id="drillPrev${d.num}">タップして選択肢を表示...</span>
+          </div>
+          <span class="step-chevron" id="drillChev${d.num}">選択 ▼</span>
+        </button>
+        <div class="step-drawer">
+          <div class="step-choice-list">${optsHtml}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+    <button type="button" class="btn-submit" id="drillSubmitBtn" onclick="gradeStepDrill()" disabled>
+      未選択の項目があります（あと 5 項目）
+    </button>
+    <div class="result-box" id="drillResultBox"></div>
+  `;
+
+  document.getElementById("labStageContent").innerHTML = html;
+  toggleDrillDrawer(1);
+  document.getElementById("labOutputCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function toggleDrillDrawer(num) {
+  const acc = document.getElementById("drillAcc" + num);
+  if (!acc) return;
+  const isOpen = acc.classList.contains("open");
+  document.querySelectorAll("#labStageContent .step-accordion").forEach(el => {
+    el.classList.remove("open");
+    const ch = el.querySelector(".step-chevron");
+    if (ch) ch.textContent = el.classList.contains("answered") ? "変更 ▼" : "選択 ▼";
+  });
+  if (!isOpen) {
+    acc.classList.add("open");
+    document.getElementById("drillChev" + num).textContent = "閉じる ▲";
+  }
+}
+
+function selectDrillOption(num, btnElem) {
+  const val = btnElem.getAttribute("data-opt");
+  document.getElementById("drillAns" + num).value = val;
+  const acc = document.getElementById("drillAcc" + num);
+  acc.querySelectorAll(".step-choice-btn").forEach(b => b.classList.remove("selected"));
+  btnElem.classList.add("selected");
+
+  acc.classList.add("answered");
+  acc.classList.remove("open");
+  document.getElementById("drillPrev" + num).textContent = "✔ " + val;
+  document.getElementById("drillChev" + num).textContent = "変更 ▼";
+
+  if (num < 5 && !document.getElementById("drillAns" + (num + 1)).value) {
+    toggleDrillDrawer(num + 1);
+  }
+
+  let count = 0;
+  for (let i = 1; i <= 5; i++) {
+    if (document.getElementById("drillAns" + i).value) count++;
+  }
+  const rem = 5 - count;
+  const btn = document.getElementById("drillSubmitBtn");
+  if (rem === 0) {
+    btn.disabled = false;
+    btn.textContent = "答え合わせ ＆ フル解析レポートを表示（5点満点）";
+  } else {
+    btn.disabled = true;
+    btn.textContent = `未選択の項目があります（あと ${rem} 項目）`;
+  }
+}
+
+function gradeStepDrill() {
+  if (!drillCurrentRes) return;
+  const r = drillCurrentRes;
+  const u1 = document.getElementById("drillAns1").value;
+  const u2 = document.getElementById("drillAns2").value;
+  const u3 = document.getElementById("drillAns3").value;
+  const u4 = document.getElementById("drillAns4").value;
+  const u5 = document.getElementById("drillAns5").value;
+
+  const dummyCase = { step1: r.step1Ans };
+  const checks = [
+    { label: "Step 1 (pH)", user: u1, correct: r.step1Ans, isOk: u1 === r.step1Ans },
+    { label: "Step 2 (主病態)", user: u2, correct: r.step2Ans, isOk: isStepMatch(2, u2, r.step2Ans, dummyCase) },
+    { label: "Step 3 (AG)", user: u3, correct: r.step3Ans, isOk: u3 === r.step3Ans },
+    { label: "Step 4 (代償評価)", user: u4, correct: r.step4Ans, isOk: isStepMatch(4, u4, r.step4Ans, dummyCase) },
+    { label: "Step 5 (複合・電解質)", user: u5, correct: r.step5Ans, isOk: isStepMatch(5, u5, r.step5Ans, dummyCase) }
+  ];
+
+  let score = 0;
+  let fbHtml = "";
+  checks.forEach(chk => {
+    if (chk.isOk) score++;
+    fbHtml += `<div class="feedback-item ${chk.isOk ? "fb-ok" : "fb-ng"}">
+      <strong>${chk.isOk ? "✔ 正解" : "✖ 不正解"} [${chk.label}]</strong>：${chk.user}
+      ${chk.isOk ? "" : `<br>👉 解析結果：<strong>${chk.correct}</strong>`}
+    </div>`;
+  });
+
+  const resBox = document.getElementById("drillResultBox");
+  resBox.innerHTML = `
+    <div class="score-banner" style="color:${score === 5 ? '#4ade80' : '#facc15'};">
+      じっくり考えたい（5ステップ推論）判定結果： ${score} / 5 点 ${score === 5 ? "🎉 Perfect!" : ""}
+    </div>
+    <div class="feedback-list">${fbHtml}</div>
+    <div style="margin-top:14px;">
+      <div class="card-title">⚡ 詳細計算プロセス</div>
+      ${buildFullDecodeHTML(r)}
+    </div>
+  `;
+  resBox.style.display = "block";
+  resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+window.addEventListener("DOMContentLoaded", initSimulator);
+</script>
+
+<!-- ★これより下に Part 2（初級編）、Part 3（中級編）、Part 4（上級編）を順番に貼り付けます★ -->
+<script>
+// ==========================================
+// 初級編No.01～No.20 データ登録（完全整合版）
+// ==========================================
+window.allCases.push(
+  {
+    id: 1,
+    level: "初級",
+    title: "No.01：腎盂腎炎からの敗血症初期",
+    scenario: "72歳男性。2日前からの発熱と左背部痛を主訴に救急搬送。意識JCS I-1、呼吸は深く速い。末梢はやや冷感あり。",
+    vitals: "BP 92/50 (64) mmHg | HR 104 /min | RR 28 /min | SpO2 98% (O2 3L) | BT 38.9℃",
+    labs: {
+      pH: "7.34", PaCO2: "29", PaO2: "96", HCO3: "15.0", BE: "-9.5",
+      Na: "140", K: "4.5", Cl: "106", Lac: "5.2 mmol/L", Alb: "3.8", Glu: "135"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "心因性過換気症候群による原発性呼吸性アルカローシス",
+      "敗血症の組織低灌流に伴う乳酸アシドーシス（AGMA）と適切な呼吸性代償",
+      "急性呼吸不全による呼吸性アシドーシスと代償不全",
+      "遠位尿細管性アシドーシス（1型RTA）による重炭酸イオン喪失",
+      "生理食塩水過剰投与に伴う高クロール性代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "鎮静薬の静脈内投与による呼吸回数の抑制",
+      "細胞外液の急速輸液（30mL/kg）と血液培養採取・広域抗菌薬の投与開始",
+      "初期輸液に先行した8.4%炭酸水素ナトリウム（メイロン）100mLの急速静注",
+      "死腔増大を目的としたリザーバーマスクによる二酸化炭素の再吸入",
+      "5%ブドウ糖液の急速点滴によるクロール濃度の希釈"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.34（アシデミア）、HCO3- 15.0 mmol/Lより代謝性アシドーシス。<br>② 実測AG = 140 - (106 + 15.0) = 19.0 mEq/L（Alb補正AG = 19.5：AG開大）。乳酸 5.2 mmol/Lの上昇と一致する乳酸アシドーシス。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 15.0) = 29.2 mmHg（実測29 mmHg）で適切な呼吸性代償。<br>④ 補正HCO3- = 15.0 + (19.5 - 12) = 22.5 mmol/L（基準範囲22〜26内）で単一AGMA。<br>【臨床対応】敗血症に伴う組織低灌流が原因です。SSCGバンドルに従い初期蘇生輸液と感染源コントロール・抗菌薬投与を最優先します。"
+  },
+  {
+    id: 2,
+    level: "初級",
+    title: "No.02：上部消化管出血による出血性ショック",
+    scenario: "64歳男性。黒色便と大量吐血後に救急搬送。顔面蒼白、冷汗著明。意識は清明だが不穏気味で頻呼吸を呈している。",
+    vitals: "BP 78/42 (54) mmHg | HR 122 /min | RR 30 /min | SpO2 97% (O2 5L) | Hb 6.8 g/dL",
+    labs: {
+      pH: "7.29", PaCO2: "26", PaO2: "105", HCO3: "12.2", BE: "-12.8",
+      Na: "139", K: "4.8", Cl: "104", Lac: "7.8 mmol/L", Alb: "3.6", Glu: "168"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "疼痛・不安に伴う中枢性過換気と呼吸性アルカローシス",
+      "出血性ショックおよび貧血（酸素運搬量低下）に伴うA型乳酸アシドーシス",
+      "下部消化管からの重炭酸イオン喪失によるAG非開大型代謝性アシドーシス",
+      "急性腎障害に伴う尿毒症性アシドーシス",
+      "血液濃縮に伴う高アルブミン性アニオンギャップ開大"
+    ],
+    actionOptions: [
+      "ミダゾラムとロクロニウムを用いた急速導入気管挿管と換気回数12回/分への制限",
+      "大口径静脈路の確保・急速晶質液輸液・赤血球輸血および緊急内視鏡的止血術の実施",
+      "過換気是正を目的とした酸素投与の中止と経過観察",
+      "重曹水（炭酸水素ナトリウム）の内服による胃酸およびアシドーシスの中和",
+      "フロセミド40mgの静脈内投与によるカリウム排泄の促進"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.29、HCO3- 12.2 mmol/Lより代謝性アシドーシス。<br>② 実測AG = 139 - (104 + 12.2) = 22.8 mEq/L（Alb補正AG = 23.8：AG開大）。ヘモグロビン低下と血圧低下による酸素運搬量（DO2）低下から生じたA型乳酸アシドーシス（Lac 7.8）。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 12.2) = 25.8 mmHg（実測26 mmHg）と適切に代償。<br>④ 補正HCO3- = 12.2 + (23.8 - 12) = 24.0 mmol/L（基準範囲内）で単一障害。<br>【臨床対応】循環血液量回復と赤血球輸血による酸素供給量改善および止血が根本治療です。"
+  },
+  {
+    id: 3,
+    level: "初級",
+    title: "No.03：慢性腎臓病（CKD G5）の尿毒症性アシドーシス",
+    scenario: "68歳女性。糖尿病性腎症による末期腎不全で外来通院中だが、ここ1ヶ月間受診を自己中断していた。全身倦怠感と食欲不振で来院。",
+    vitals: "BP 158/88 mmHg | HR 82 /min | RR 22 /min | SpO2 98% (room air) | BT 36.4℃",
+    labs: {
+      pH: "7.32", PaCO2: "29", PaO2: "92", HCO3: "14.4", BE: "-10.2",
+      Na: "136", K: "5.8", Cl: "102", Lac: "1.1 mmol/L", Alb: "3.9", BUN: "98 mg/dL", Cr: "8.4 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "検体放置による嫌気性解糖と測定上のアーチファクト",
+      "末期腎不全に伴う不揮発性酸（リン酸・硫酸等）の排泄障害（尿毒症性アシドーシス）と高K血症",
+      "うっ血性心不全による肺胞低換気と呼吸性アシドーシス",
+      "糖尿病性ケトアシドーシス（DKA）によるケトン体蓄積",
+      "遠位尿細管性アシドーシス（1型RTA）単独による重炭酸イオン喪失"
+    ],
+    actionOptions: [
+      "異常なしと判定したうえでの外来経過観察",
+      "12誘導心電図の確認・高カリウム血症対策（GI療法等）の実施と血液透析導入の準備",
+      "オピオイド投与による呼吸ドライブの抑制",
+      "5%ブドウ糖液2,000mLの急速点滴による血清カリウムの希釈",
+      "クエン酸カリウム・クエン酸ナトリウム配合剤の大量内服"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.32、HCO3- 14.4より代謝性アシドーシス。<br>② 実測AG = 136 - (102 + 14.4) = 19.6 mEq/L（Alb補正AG = 19.9：AG開大）。乳酸は正常であり、高度腎不全（Cr 8.4）に伴うリン酸・硫酸等の排泄障害（尿毒症）が原因です。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 14.4) = 28.5 mmHg（実測29 mmHg）で適切な呼吸性代償。<br>④ 補正HCO3- = 14.4 + (19.9 - 12) = 22.3 mmol/L（基準範囲内）。<br>【臨床対応】高K血症対策を行いつつ血液透析を導入します。"
+  },
+  {
+    id: 4,
+    level: "初級",
+    title: "No.04：重症感染性腸炎による激しい水様下痢",
+    scenario: "45歳男性。東南アジア渡航後より1日10回以上の大量の水様性下痢が3日間持続し、強い立ちくらみと脱力で救急外来を受診。",
+    vitals: "BP 96/60 mmHg | HR 108 /min | RR 24 /min | SpO2 99% (room air) | BT 37.2℃",
+    labs: {
+      pH: "7.31", PaCO2: "28", PaO2: "98", HCO3: "13.5", BE: "-11.4",
+      Na: "138", K: "3.1", Cl: "113", Lac: "1.4 mmol/L", Alb: "4.1", "尿AG": "-25 mEq/L（陰性）"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "下部消化管からの重炭酸イオン・カリウム喪失による高クロール性代謝性アシドーシス（NAGMA）",
+      "原発性アルドステロン症の合併による低カリウム性アシドーシス",
+      "遠位尿細管でのアンモニウム排泄障害による1型尿細管性アシドーシス",
+      "敗血症性ショックに伴う組織低灌流と乳酸アシドーシス",
+      "呼吸中枢刺激による原発性呼吸性アルカローシスと腎性代償"
+    ],
+    actionOptions: [
+      "晶質液（リンゲル液等）による細胞外液補充とカリウム製剤の並行投与",
+      "スピロノラクトン（アルドステロン拮抗薬）の内服開始",
+      "クエン酸ナトリウム単独の経口投与による経過観察",
+      "フロセミド静注による血中クロールイオンの強制排泄",
+      "ノルアドレナリン持続静注と広域抗菌薬の単独開始"
+    ],
+    correctCause: [0],
+    correctAction: [0],
+    explanation: "【計算プロセス】<br>① pH 7.31、HCO3- 13.5より代謝性アシドーシス。<br>② AG = 138 - (113 + 13.5) = 11.5 mEq/L（AG正常）。簡易Stewart（Na - Cl - 35）= -10 で典型的な高Cl性代謝性アシドーシス（NAGMA）。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 13.5) = 27.4 mmHg（実測28 mmHg）で適切な呼吸性代償。<br>④ 尿AGがマイナス（陰性）は腎でのNH4+排泄が正常に増加している証拠であり、下痢による腸液（HCO3-とK+）喪失と診断できます。"
+  },
+  {
+    id: 5,
+    level: "初級",
+    title: "No.05：シェーグレン症候群に伴う遠位尿細管性アシドーシス（1型RTA）",
+    scenario: "52歳女性。口腔乾燥とドライアイで通院歴あり。数日前から四肢の脱力感が進行し、歩行困難となって来院。下痢や嘔吐の病歴はない。",
+    vitals: "BP 116/72 mmHg | HR 78 /min | RR 22 /min | SpO2 99% (room air) | 四肢筋力 MMT 3/5",
+    labs: {
+      pH: "7.29", PaCO2: "26", PaO2: "102", HCO3: "12.0", BE: "-13.2",
+      Na: "139", K: "2.2", Cl: "116", Lac: "0.9 mmol/L", Alb: "4.0", "尿pH": "6.5", "尿AG": "+18 mEq/L（陽性）"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "ケトン体蓄積に伴うアニオンギャップ開大型代謝性アシドーシス",
+      "遠位尿細管での水素イオン排泄障害（尿pH>5.5・尿AG陽性）による1型RTAと重度低K血症",
+      "過換気症候群に伴う急性呼吸性アルカローシスと低カリウム血症",
+      "下剤乱用に伴う消化管からの重炭酸・カリウム喪失",
+      "アルドステロン欠乏に伴う4型尿細管性アシドーシス"
+    ],
+    actionOptions: [
+      "カリウム補正に先行した8.4%炭酸水素ナトリウムの急速静脈内投与",
+      "塩化カリウム（KCl）による確実なカリウム補充の先行と、その後の重炭酸（アルカリ）補充",
+      "ペーパーバッグ法による呼気二酸化炭素の再吸入",
+      "0.9%生理食塩水単独での急速輸液負荷",
+      "カリウム吸着薬（ロケルマ等）の経口投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.29、HCO3- 12.0、AG = 139 - (116 + 12.0) = 11.0（AG正常：NAGMA）。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 12.0) = 25.6 mmHg（実測26 mmHg）で適切な呼吸性代償。<br>③ 高度アシデミア下にもかかわらず尿pH 6.5（>5.5）と尿酸性化障害があり、尿AG陽性（NH4+排泄不全）から1型（遠位）RTAと診断できます。<br>【臨床の鉄則】重度低K血症（2.2 mEq/L）で重炭酸ナトリウムを先行投与するとK+が細胞内へシフトし致死的不整脈を起こすため、必ずK補充を先行します。"
+  },
+  {
+    id: 6,
+    level: "初級",
+    title: "No.06：周術期の生理食塩水大量投与による高Cl性アシドーシス",
+    scenario: "60歳男性。長時間におよぶ腹部手術後、ICUに入室し抜管された。術中の出血とサードスペース移行に対し、0.9%生理食塩水計5,500mLが投与されていた。循環動態は安定し尿量も確保されている。",
+    vitals: "BP 124/76 mmHg | HR 84 /min | RR 20 /min | SpO2 98% (O2 3L) | 尿量 80 mL/hr",
+    labs: {
+      pH: "7.33", PaCO2: "31", PaO2: "110", HCO3: "15.8", BE: "-8.8",
+      Na: "143", K: "4.2", Cl: "116", Lac: "1.2 mmol/L", Alb: "3.5", Cr: "0.85 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "縫合不全および腹膜炎による敗血症性乳酸アシドーシス",
+      "0.9%生理食塩水（強イオン差 SID = 0）の大量投与に伴う医原性高クロール性代謝性アシドーシス",
+      "自由水過剰に伴う希釈性低ナトリウム血症とアシドーシス",
+      "術後急性腎障害（AKI）による尿毒症性アシドーシス",
+      "創部痛による原発性呼吸性アルカローシス"
+    ],
+    actionOptions: [
+      "緊急再開腹手術および腹腔内洗浄ドレナージの実施",
+      "生理食塩水の中止とBalanced crystalloid（酢酸/重炭酸リンゲル液等）への輸液変更・経過観察",
+      "5%ブドウ糖液1,000mLの急速静脈内負荷",
+      "持続的血液濾過透析（CHDF）の緊急導入",
+      "フェンタニル増量による呼吸回数の抑制"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.33、HCO3- 15.8、実測AG 11.2（Alb補正AG 12.5：AG正常）。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 15.8) = 30.2 mmHg（実測31 mmHg）。<br>③ 簡易Stewart（Na - Cl - 35）= 143 - 116 - 35 = -8 であり、Cl-負荷（116 mEq/L）によるSID低下が原因のNAGMA。<br>【臨床対応】0.9%生理食塩水（SID 0）の大量投与による医原性高Cl性アシドーシスであり、リンゲル液（Balanced crystalloid）へ変更して経過をみます。"
+  },
+  {
+    id: 7,
+    level: "初級",
+    title: "No.07：ベンゾジアゼピン系睡眠薬過量服薬による急性肺胞低換気",
+    scenario: "32歳男性。自室で睡眠薬のPTPシート大量の空殻とともに倒れているところを発見され救急搬送。意識JCS III-100、いびき様呼吸で呼吸数が著明に減少している。肺雑音は聴取しない。",
+    vitals: "BP 112/68 mmHg | HR 96 /min | RR 8 /min | SpO2 99% (O2 10Lマスク) | BT 36.2℃",
+    labs: {
+      pH: "7.21", PaCO2: "70", PaO2: "165", HCO3: "27.0", BE: "+1.2",
+      Na: "141", K: "4.3", Cl: "102", Lac: "0.9 mmol/L", Alb: "4.2", Glu: "105"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "ガス交換障害を伴わない正常換気状態",
+      "薬物性呼吸中枢抑制および舌根沈下（上気道閉塞）による急性呼吸性アシドーシス",
+      "重炭酸イオン増加を主因とする原発性代謝性アルカローシス",
+      "薬物毒性によるアニオンギャップ開大型代謝性アシドーシス",
+      "重症肺炎による肺内シャント増大と1型呼吸不全"
+    ],
+    actionOptions: [
+      "酸素マスク10L/分を維持したままでの経過観察",
+      "用手的気道確保・バッグバルブマスク補助換気の実施と気管挿管・人工呼吸管理の導入",
+      "アセタゾラミド（ダイアモックス）静注による重炭酸排泄の促進",
+      "換気補助を行わない状態での8.4%炭酸水素ナトリウム静注",
+      "高流量鼻カニュラ（HFNC）装着のみによる呼吸管理"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.21（アシデミア）、PaCO2 70 mmHgより呼吸性アシドーシス。<br>② 急性呼吸性アシドーシス予測HCO3- = 24 + 0.1 × (70 - 40) = 27.0 mmol/L（実測27.0）と完全一致（pH = 6.1 + log10[27.0/(0.03×70)] = 7.21）。<br>【臨床対応】高濃度酸素投与で見かけ上SpO2は99%ですが、高度な急性肺胞低換気と上気道閉塞があり、確実な気道確保と人工呼吸管理が必要です。"
+  },
+  {
+    id: 8,
+    level: "初級",
+    title: "No.08：術後フェンタニル過量による急性呼吸抑制",
+    scenario: "58歳女性。腹腔鏡下胆嚢摘出術後、病棟に帰室して2時間後。創部痛に対しフェンタニルPCAを複数回プッシュした後に傾眠傾向となり、呼吸数が低下しているのを看護師が発見した。",
+    vitals: "BP 128/74 mmHg | HR 72 /min | RR 7 /min | SpO2 89% (room air) | 瞳孔 1.5/1.5mm（縮瞳）",
+    labs: {
+      pH: "7.26", PaCO2: "60", PaO2: "56", HCO3: "26.0", BE: "+0.5",
+      Na: "139", K: "4.1", Cl: "101", Lac: "1.0 mmol/L", Alb: "4.0", "A-aDO2": "19 mmHg（ほぼ正常）"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "術後急性肺血栓塞栓症による換気血流比不均等（high V/Qミスマッチ）",
+      "オピオイド過量による純粋な急性肺胞低換気（A-aDO2正常の急性呼吸性アシドーシス）",
+      "慢性閉塞性肺疾患（COPD）による慢性呼吸性アシドーシス",
+      "広範な術後無気肺による肺内シャント増大",
+      "術後嘔吐による代謝性アルカローシスと呼吸性代償"
+    ],
+    actionOptions: [
+      "未分画ヘパリンの急速静注と肺動脈造影CTの実施",
+      "フェンタニル投与の中断・声かけ刺激・補助換気（酸素投与）およびナロキソン投与の検討",
+      "CO2ナルコーシス予防を目的とした酸素投与の差し控え",
+      "自発呼吸温存下での高圧CPAPマスク（15cmH2O）単独装着",
+      "0.9%生理食塩水の急速輸液負荷"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.26、PaCO2 60 mmHg、急性予測HCO3- = 24 + 0.1×20 = 26.0（実測26.0）。<br>② 室内気でのA-aDO2 = (150 - 60/0.8) - 56 = 19 mmHgと正常であり、肺実質のガス交換障害ではなくオピオイドによる純粋な「肺胞低換気」です。<br>【臨床対応】オピオイド中断、覚醒刺激・換気補助、必要に応じナロキソン少量分割投与を行います。"
+  },
+  {
+    id: 9,
+    level: "初級",
+    title: "No.09：急性喉頭蓋炎・気道確保後の不適切な換気設定",
+    scenario: "42歳男性（身長170cm、理想体重66kg）。急性喉頭蓋炎による上気道閉塞リスクのため緊急気管挿管を実施し、深鎮静・筋弛緩下で人工呼吸器（VCVモード：一回換気量350mL、呼吸回数8回/分、FiO2 0.4、PEEP 5）に装着して1時間後の血液ガス。",
+    vitals: "BP 130/78 mmHg | HR 88 /min | RR 8 /min (設定通り) | SpO2 99% (FiO2 0.4) | 肺コンプライアンス 75 mL/cmH2O",
+    labs: {
+      pH: "7.23", PaCO2: "65", PaO2: "180", HCO3: "26.5", BE: "+0.8",
+      Na: "140", K: "4.4", Cl: "102", Lac: "1.1 mmol/L", Alb: "4.1", "プラトー圧": "11 cmH2O"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "重症ARDSの合併による肺コンプライアンス低下と拡散障害",
+      "人工呼吸器の分時換気量設定不足（2.8L/分）による医原性急性呼吸性アシドーシス",
+      "挿管チューブ閉塞や気管支攣縮による気道抵抗の著明な上昇",
+      "気管支喘息発作に伴うエアトラッピング（Auto-PEEP）",
+      "敗血症合併によるアニオンギャップ開大型代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "Permissive hypercapnia（高二酸化炭素許容換気）としての現行設定の維持",
+      "理想体重に見合った一回換気量（450〜500mL）および呼吸回数（12〜15回/分）への設定変更",
+      "PEEP 15cmH2Oへの引き上げと吸入酸素濃度1.0への増量",
+      "呼気時間確保を目的とした呼吸回数6回/分へのさらなる減量",
+      "8.4%炭酸水素ナトリウム（メイロン）の静脈内投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.23、PaCO2 65 mmHg、急性予測HCO3- = 24 + 0.1×25 = 26.5（実測26.5）。<br>【臨床対応】急性喉頭蓋炎は上気道の疾患であり、挿管後の肺コンプライアンス（75 mL/cmH2O）や酸素化（P/F 450）は正常です。理想体重66kgに対しVT 350mL×RR 8回＝分時換気量2.8L/分は極端な設定不足であり、標準的なVT 6〜8mL/kg・RR 12〜15回/分へ適正化します。"
+  },
+  {
+    id: 10,
+    level: "初級",
+    title: "No.10：安定期COPD（重症肺気腫）の外来フォロー",
+    scenario: "76歳男性。50年間の重度喫煙歴があり、在宅酸素療法（安静時1L/分）を導入されているCOPD患者。定期外来受診時、普段通りの軽い息切れのみで急性増悪の徴候はない。",
+    vitals: "BP 132/76 mmHg | HR 78 /min | RR 18 /min | SpO2 92% (O2 1Lカニュラ) | 口すぼめ呼吸あり",
+    labs: {
+      pH: "7.36", PaCO2: "56", PaO2: "64", HCO3: "30.5", BE: "+5.2",
+      Na: "140", K: "4.2", Cl: "98", Lac: "0.8 mmol/L", Alb: "4.0", Glu: "98"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "利尿薬や嘔吐による原発性代謝性アルカローシス",
+      "急性呼吸不全の増悪による非代償性呼吸性アシドーシス",
+      "重症COPDによる慢性呼吸性アシドーシスと腎性代償（HCO3-再吸収・Cl排泄）の完了状態",
+      "高濃度酸素投与に伴うCO2ナルコーシス",
+      "組織低酸素に伴う乳酸アシドーシス"
+    ],
+    actionOptions: [
+      "アセタゾラミド（ダイアモックス）投与による重炭酸イオンの強制排泄",
+      "緊急気管挿管およびPaCO2 40 mmHgを目標とした急速機械換気",
+      "SpO2 88〜92%を目標とした現在の低流量酸素療法の継続と外来フォロー",
+      "SpO2 100%達成を目的としたリザーバーマスク10L/分への変更",
+      "乳酸リンゲル液の急速点滴負荷"
+    ],
+    correctCause: [2],
+    correctAction: [2],
+    explanation: "【計算プロセス】<br>① pH 7.36（7.40未満の酸性側だが基準範囲内）、PaCO2 56 mmHgより呼吸性アシドーシスが主病態。<br>② 慢性呼吸性アシドーシス予測HCO3- = 24 + 0.35 × (56 - 40) = 29.6 mmol/L（実測30.5：慢性代償範囲内）。腎臓がHCO3-を再吸収しCl-を尿中排泄してpHを正常域へ戻した慢性代償完了状態です。<br>【臨床対応】無症状・安定期であり、現在の低流量酸素管理（SpO2 88〜92%）を維持します。"
+  },
+  {
+    id: 11,
+    level: "初級",
+    title: "No.11：肥満低換気症候群（OHS）の慢性高二酸化炭素血症",
+    scenario: "48歳男性（身長168cm、体重118kg、BMI 41.8）。日中の強い傾眠と起床時の頭痛を主訴に睡眠外来を受診。著明な肥満と夜間のいびき・無呼吸を指摘されている。",
+    vitals: "BP 148/92 mmHg | HR 84 /min | RR 16 /min | SpO2 91% (room air) | BT 36.5℃",
+    labs: {
+      pH: "7.36", PaCO2: "54", PaO2: "62", HCO3: "29.5", BE: "+4.2",
+      Na: "141", K: "4.3", Cl: "99", Lac: "1.1 mmol/L", Alb: "4.2", Hb: "17.2 g/dL"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "急性声門浮腫による突発的な上気道閉塞",
+      "高度肥満に伴う慢性肺胞低換気（肥満低換気症候群）と腎性代償の完了状態",
+      "原発性アルドステロン症による代謝性アルカローシス",
+      "真性多血症に合併した急性肺血栓塞栓症",
+      "腎不全に伴う高クロール性代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "緊急輪状甲状靱帯切開による外科的気道確保",
+      "減量指導および睡眠検査と夜間非侵襲的陽圧換気（NPPV / CPAP）の導入",
+      "生理食塩水と塩化カリウムの急速点滴静注",
+      "組織プラスミノーゲンアクチベーター（t-PA）による血栓溶解療法",
+      "塩化アンモニウム投与による血液の酸性化"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.36（酸性寄り基準範囲内）、PaCO2 54 mmHgより呼吸性アシドーシス。<br>② 慢性予測HCO3- = 24 + 0.35 × (54 - 40) = 28.9 mmol/L（実測29.5）で慢性の腎性代償が成立しています。<br>【臨床対応】肥満低換気症候群（OHS）の典型例であり、減量とともに夜間NPPV/CPAPを導入します。"
+  },
+  {
+    id: 12,
+    level: "初級",
+    title: "No.12：筋萎縮性側索硬化症（ALS）の慢性換気不全",
+    scenario: "66歳女性。2年前にALSと診断され在宅療養中。最近、起床時の頭重感と日中の倦怠感が増強したため神経内科外来を受診。肺野の聴診は清。",
+    vitals: "BP 118/70 mmHg | HR 76 /min | RR 20 /min (浅い呼吸) | SpO2 93% (room air)",
+    labs: {
+      pH: "7.36", PaCO2: "52", PaO2: "70", HCO3: "28.2", BE: "+3.1",
+      Na: "139", K: "4.0", Cl: "99", Lac: "0.7 mmol/L", Alb: "4.0", "A-aDO2": "15 mmHg（正常）"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "呼吸機能および酸塩基平衡の完全な正常状態",
+      "神経筋疾患の進行に伴う呼吸筋力低下（慢性呼吸性アシドーシスと腎性代償）",
+      "誤嚥性肺炎による肺内シャント増大と拡散障害",
+      "脱水に伴う原発性代謝性アルカローシス",
+      "気道可逆性を伴う気管支喘息発作"
+    ],
+    actionOptions: [
+      "特別な介入を行わないままでの自宅経過観察",
+      "本人・家族との意思決定支援（ACP）の実施と非侵襲的陽圧換気（NPPV）導入の検討",
+      "広域抗菌薬の投与とリザーバーマスクによる高濃度酸素療法",
+      "利尿薬の休薬と細胞外液の急速負荷",
+      "短時間作用型β2刺激薬の反復ネブライザー吸入"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.36、PaCO2 52 mmHg、慢性予測HCO3- = 24 + 0.35 × 12 = 28.2 mmol/L（実測28.2）。<br>② A-aDO2 = (150 - 52/0.8) - 70 = 15 mmHgと正常であり、呼吸筋力低下による慢性肺胞低換気です。「pHが基準範囲内だから正常」と見落とさず、NPPV等の換気補助を検討します。"
+  },
+  {
+    id: 13,
+    level: "初級",
+    title: "No.13：過換気症候群による急性呼吸性アルカローシスとテタニー",
+    scenario: "24歳女性。職場で強い精神的ストレスを受けた直後から息苦しさと動悸が出現し救急搬送。著明な頻呼吸があり、両手指のしびれと助産師手位（Trousseau徴候）を認める。",
+    vitals: "BP 118/68 mmHg | HR 110 /min | RR 36 /min | SpO2 100% (room air) | BT 36.6℃",
+    labs: {
+      pH: "7.59", PaCO2: "22", PaO2: "118", HCO3: "20.4", BE: "-1.0",
+      Na: "139", K: "3.6", Cl: "106", Lac: "1.3 mmol/L", "イオン化Ca2+": "0.92 mmol/L（低下）", "A-aDO2": "4.5 mmHg"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "低酸素血症に対する代償性の二次性過換気",
+      "重炭酸イオン減少を主因とする原発性代謝性アシドーシス",
+      "過換気症候群による急性呼吸性アルカローシスとアルブミン結合増加に伴うイオン化Ca低下",
+      "原発性副甲状腺機能低下症による低カルシウム血症クリーゼ",
+      "急性肺血栓塞栓症による死腔換気の増大"
+    ],
+    actionOptions: [
+      "紙袋で口と鼻を覆うペーパーバッグ法による呼気再吸入",
+      "8.4%炭酸水素ナトリウム（メイロン）の静脈内投与",
+      "パルスオキシメーター監視下での安心感の提供と呼気延長の誘導（必要時少量の抗不安薬投与）",
+      "塩化カルシウム製剤の急速静脈内ワンショット投与",
+      "緊急気管挿管および筋弛緩薬投与による調節換気"
+    ],
+    correctCause: [2],
+    correctAction: [2],
+    explanation: "【計算プロセス】<br>① pH 7.59（アルカレミア）、PaCO2 22 mmHgより呼吸性アルカローシス。<br>② 急性予測HCO3- = 24 - 0.2 × (40 - 22) = 20.4 mmol/L（実測20.4）。A-aDO2も4.5 mmHgと正常。<br>【電解質と臨床対応】アルカレミアによりアルブミンからH+が外れて遊離Ca2+が結合し、イオン化Ca2+が減少してテタニーを起こしています。ペーパーバッグ法は低酸素リスクのため推奨されず、落ち着いた呼吸誘導で対応します。"
+  },
+  {
+    id: 14,
+    level: "初級",
+    title: "No.14：急性肺血栓塞栓症（high V/Qミスマッチ）による過換気",
+    scenario: "62歳女性。膝関節置換術後3日目、初回歩行時に突然の呼吸困難と胸痛が出現。冷汗はないが頻呼吸と頻脈を認める。肺野聴診でラ音は聴取せず、胸部X線も正常。",
+    vitals: "BP 114/70 mmHg | HR 112 /min | RR 28 /min | SpO2 90% (room air) | 右下腿腫脹あり",
+    labs: {
+      pH: "7.51", PaCO2: "28", PaO2: "58", HCO3: "21.6", BE: "-1.2",
+      Na: "140", K: "3.9", Cl: "106", Lac: "1.6 mmol/L", "A-aDO2": "57 mmHg（著明開大）", "D-dimer": "18.5 μg/mL"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "精神的ストレスに伴う心因性過換気症候群",
+      "急性肺血栓塞栓症によるA-aDO2開大を伴う低酸素血症と急性呼吸性アルカローシス",
+      "心原性肺水腫による肺胞内浸出液貯留",
+      "敗血症に伴うアニオンギャップ開大型代謝性アシドーシス",
+      "疼痛による肺胞低換気と呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "抗不安薬の投与と精神科へのコンサルト",
+      "酸素投与の開始・心エコーおよび造影CT検査の実施と抗凝固療法の開始",
+      "酸素投与を控えた状態での高圧NPPV装着",
+      "重炭酸リンゲル液の大量急速輸液",
+      "鎮静薬および筋弛緩薬投与による換気抑制"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.51、PaCO2 28 mmHg、急性予測HCO3- = 24 - 0.2 × 12 = 21.6（実測21.6）で急性呼吸性アルカローシス。<br>② 過換気症候群との決定的な違いは、PaO2 58 mmHgかつA-aDO2 = (150 - 28/0.8) - 58 = 57 mmHgと著明に開大している点です。肺血栓塞栓症を強く疑い酸素投与・造影CT・抗凝固療法へ進みます。"
+  },
+  {
+    id: 15,
+    level: "初級",
+    title: "No.15：人工呼吸器管理中の過換気設定による医原性呼吸性アルカローシス",
+    scenario: "55歳男性（身長168cm、理想体重64kg）。脳出血術後、気道保護目的で挿管・人工呼吸管理中（A/C VCVモード：一回換気量550mL、設定換気回数18回/分、FiO2 0.3、PEEP 5）。自発呼吸はなく設定通りに換気されている。",
+    vitals: "BP 136/80 mmHg | HR 74 /min | RR 18 /min | SpO2 99% (FiO2 0.3) | BT 36.8℃",
+    labs: {
+      pH: "7.55", PaCO2: "25", PaO2: "135", HCO3: "21.0", BE: "-1.5",
+      Na: "142", K: "3.6", Cl: "109", Lac: "0.9 mmol/L", "イオン化Ca2+": "0.96 mmol/L（低下）"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "急性の代償範囲内（緩衝系による初期代償）",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "敗血症合併に伴う原発性代謝性アシドーシス",
+      "人工呼吸器の分時換気量過剰（9.9L/分）による医原性急性呼吸性アルカローシス",
+      "高濃度酸素投与に伴う吸収性無気肺",
+      "胃管排液に伴う低クロール性代謝性アルカローシス",
+      "中枢性尿崩症に伴う高ナトリウム性アルカローシス"
+    ],
+    actionOptions: [
+      "細胞外液の急速輸液負荷と抗菌薬の開始",
+      "脳血管収縮による脳虚血およびイオン化Ca低下を防ぐための一回換気量（400〜450mL）と換気回数（12〜14回/分）の減量調整",
+      "PEEPの0 cmH2Oへの引き下げ",
+      "中心静脈カテーテルからの塩酸（HCl）点滴投与",
+      "ベッドサイドでの緊急気管切開術の施行"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.55、PaCO2 25 mmHg、急性予測HCO3- = 24 - 0.2 × 15 = 21.0（実測21.0）。<br>② アルカレミアによりアルブミンへのCa結合が増加し、イオン化Ca2+が0.96 mmol/Lへ低下しています。<br>【臨床対応】理想体重64kgに対しVT 550mL×18回＝9.9L/分は過剰換気です。脳障害患者での過度な低CO2血症とアルカレミアは脳血管収縮（脳虚血）や神経筋興奮性亢進（テタニー・痙攣）を招くため、速やかに換気設定を減量します。"
+  },
+  {
+    id: 16,
+    level: "初級",
+    title: "No.16：妊娠第3三半期における生理的慢性呼吸性アルカローシス",
+    scenario: "29歳女性（妊娠34週）。健診目的で受診。軽い息切れを自覚することがあるが、日常生活に支障はなくバイタルサインも安定している。",
+    vitals: "BP 110/64 mmHg | HR 82 /min | RR 18 /min | SpO2 99% (room air) | BT 36.7℃",
+    labs: {
+      pH: "7.44", PaCO2: "30", PaO2: "104", HCO3: "19.8", BE: "-3.5",
+      Na: "137", K: "3.9", Cl: "105", Lac: "0.8 mmol/L", Alb: "3.6"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "妊娠糖尿病に伴う糖尿病性ケトアシドーシス",
+      "プロゲステロンの呼吸中枢刺激による慢性呼吸性アルカローシスと腎性代償が完了した妊娠後期の生理的変化",
+      "遠位尿細管性アシドーシス（1型RTA）の発症",
+      "パニック障害に伴う急性過換気症候群",
+      "周産期心筋症および肺血栓塞栓症の合併"
+    ],
+    actionOptions: [
+      "速効型インスリン持続静注と生理食塩水点滴の開始",
+      "正常な妊娠生理的変化としての説明と通常の妊婦健診フォローの継続（特別な治療介入は不要）",
+      "炭酸水素ナトリウム（重曹）の経口投与開始",
+      "ベンゾジアゼピン系抗不安薬の内服処方",
+      "緊急帝王切開術および血栓溶解療法の実施"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.44（アルカリ側基準範囲内）、PaCO2 30 mmHg。<br>② 慢性呼吸性アルカローシス予測HCO3- = 24 - 0.4 × (40 - 30) = 20.0 mmol/L（実測19.8）で慢性腎性代償が完了しています。<br>【臨床知識】妊娠中はプロゲステロンによる呼吸中枢刺激でPaCO2 30前後・HCO3- 20前後が正常ベースラインとなります。"
+  },
+  {
+    id: 17,
+    level: "初級",
+    title: "No.17：高地滞在（標高3,000m）順応時の慢性呼吸性アルカローシス",
+    scenario: "35歳男性。標高3,000mの山岳地帯に5日間滞在して下山した直後に健康調査で採血を実施。高山病症状はなく体調は良好。",
+    vitals: "BP 122/74 mmHg | HR 76 /min | RR 18 /min | SpO2 95% | BT 36.5℃",
+    labs: {
+      pH: "7.44", PaCO2: "29", PaO2: "78", HCO3: "19.2", BE: "-4.0",
+      Na: "140", K: "4.0", Cl: "108", Lac: "1.0 mmol/L", Alb: "4.3"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "慢性の腎性代償範囲内（HCO3-再吸収・排泄調整完了）",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "脱水および生理食塩水摂取による原発性高クロール性代謝性アシドーシス",
+      "低圧低酸素環境への換気亢進（慢性呼吸性アルカローシス）に腎性代償（HCO3-排泄・Cl保持）が働いた高地順応状態",
+      "高地肺水腫（HAPE）による重症ガス交換障害",
+      "急性高山病に伴う脳浮腫と中枢性過換気",
+      "急性腎障害に伴う尿細管性アシドーシス"
+    ],
+    actionOptions: [
+      "ループ利尿薬投与によるクロールイオンの排泄促進",
+      "正常な高地順応過程としての経過観察（特別な治療介入は不要）",
+      "ニフェジピン投与および高流量酸素療法の即時開始",
+      "8.4%炭酸水素ナトリウム点滴によるHCO3-の補正",
+      "厳格な蛋白質制限食の指示と入院加療"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.44（アルカリ寄り基準範囲内）、PaCO2 29 mmHg。<br>② 慢性予測HCO3- = 24 - 0.4 × (40 - 29) = 19.6 mmol/L（実測19.2）。腎臓が代償でHCO3-を排泄しCl-を再吸収するためCl 108となりますが、pHが7.44とアルカリ側であることから慢性呼吸性アルカローシスの腎性代償と判別できます。"
+  },
+  {
+    id: 18,
+    level: "初級",
+    title: "No.18：急性胃腸炎・頻回嘔吐によるCl反応性代謝性アルカローシス",
+    scenario: "34歳女性。2日前から激しい嘔吐を繰り返し、水分摂取も困難となり救急外来を受診。下痢はない。口腔内は乾燥し、頻脈を認める。",
+    vitals: "BP 102/58 mmHg | HR 104 /min | RR 14 /min | SpO2 98% (room air) | BT 36.9℃",
+    labs: {
+      pH: "7.48", PaCO2: "46", PaO2: "94", HCO3: "33.0", BE: "+8.5",
+      Na: "137", K: "2.8", Cl: "92", Lac: "1.2 mmol/L", Alb: "4.2", "尿中Cl-": "8 mEq/L（<15）"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "慢性閉塞性肺疾患（COPD）の急性増悪による呼吸性アシドーシス",
+      "胃酸（HCl）喪失と細胞外液減少・低K血症により維持されたCl反応性代謝性アルカローシス（尿Cl < 15）",
+      "過換気症候群による呼吸性アルカローシス",
+      "原発性アルドステロン症によるCl不応性代謝性アルカローシス",
+      "腸液喪失による高クロール性代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "短時間作用型β2刺激薬の吸入と抗菌薬の投与",
+      "0.9%生理食塩水と塩化カリウム（KCl）の点滴補充および制吐薬の投与",
+      "グルコン酸カリウムと5%ブドウ糖液のみの点滴投与",
+      "アセタゾラミド（ダイアモックス）の単独静脈内投与",
+      "副腎造影CT検査とスピロノラクトンの開始"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.48、HCO3- 33.0より代謝性アルカローシス。<br>② 予測PaCO2 = 40 + 0.7 × (33 - 24) = 46.3 mmHg（実測46）で適切な呼吸性代償。<br>③ 尿中Cl- < 15 mEq/Lであり、胃酸（HCl）喪失と脱水・低K血症による「Cl反応性代謝性アルカローシス」です。0.9%生理食塩水＋KClの補充でPendrinによるHCO3-排泄が回復します。"
+  },
+  {
+    id: 19,
+    level: "初級",
+    title: "No.19：イレウス・経鼻胃管持続吸引による代謝性アルカローシス",
+    scenario: "70歳男性。術後癒着性イレウスで入院し、絶食のうえ経鼻胃管から1日1,500mLの胃液排出が3日間続いている。維持輸液として低張電解質輸液（3号液）のみが投与されていた。",
+    vitals: "BP 106/64 mmHg | HR 96 /min | RR 13 /min | SpO2 96% (room air) | 尿量 35 mL/hr",
+    labs: {
+      pH: "7.50", PaCO2: "48", PaO2: "85", HCO3: "36.0", BE: "+11.2",
+      Na: "135", K: "2.6", Cl: "86", Lac: "1.1 mmol/L", Alb: "3.8", "尿中Cl-": "10 mEq/L"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "維持輸液（3号液）不足による高ナトリウム性脱水",
+      "経鼻胃管からの大量胃酸（HCl）喪失とNaCl・K補充不足によるCl反応性代謝性アルカローシス",
+      "術後無気肺による原発性呼吸性アシドーシス",
+      "腸管虚血・壊死に伴う乳酸アシドーシス",
+      "悪性腫瘍に伴う高カルシウム血症性アルカローシス"
+    ],
+    actionOptions: [
+      "3号液の倍量投与とフロセミドの追加静注",
+      "0.9%生理食塩水ベースの輸液と塩化カリウム（KCl）補充への変更およびプロトンポンプ阻害薬（PPI）静注の併用",
+      "非侵襲的陽圧換気（NPPV）装着によるPaCO2の強制低下",
+      "重炭酸リンゲル液の急速輸液負荷",
+      "ビスホスホネート製剤とカルシトニンの静脈内投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.50、HCO3- 36.0、予測PaCO2 = 40 + 0.7 × 12 = 48.4 mmHg（実測48）。<br>② 簡易Stewart（Na - Cl - 35）= +14。<br>【臨床対応】胃管排液によるHCl喪失には0.9%生理食塩水＋KClによる置換輸液と、PPI投与による胃酸分泌抑制が有効です。"
+  },
+  {
+    id: 20,
+    level: "初級",
+    title: "No.20：ループ利尿薬投与によるContraction Alkalosis",
+    scenario: "74歳男性。うっ血性心不全で入院し、フロセミド静注を連日行ったところ、5日間で体重が6kg減少し呼吸苦は消失したが、本日より強い倦怠感とめまいを訴えている。",
+    vitals: "BP 98/56 mmHg | HR 94 /min | RR 14 /min | SpO2 97% (room air) | 口腔乾燥・頸静脈虚脱あり",
+    labs: {
+      pH: "7.49", PaCO2: "47", PaO2: "88", HCO3: "35.0", BE: "+10.1",
+      Na: "136", K: "2.9", Cl: "89", Lac: "1.3 mmol/L", Mg: "1.5 mg/dL", BUN: "42 mg/dL", Cr: "1.6 mg/dL"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "うっ血性心不全の増悪による急性肺水腫と呼吸性アシドーシス",
+      "ループ利尿薬過量による血管内脱水（Contraction alkalosis）および低K・低Mg・低Cl血症",
+      "心原性ショックによるA型乳酸アシドーシス",
+      "慢性腎不全の進行による尿毒症性アシドーシス",
+      "甲状腺機能亢進症に伴う周期性四肢麻痺"
+    ],
+    actionOptions: [
+      "フロセミド静注量の倍増と水分制限の強化",
+      "フロセミドの減量・休止と、塩化カリウム（KCl）および硫酸マグネシウムの補充による電解質・循環血液量の適正化",
+      "マグネシウム補正を行わない状態でのカリウム製剤単独投与",
+      "アミノフィリン持続静注と気管支拡張薬の吸入",
+      "緊急血液透析による重炭酸イオンの除去"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.49、HCO3- 35.0、予測PaCO2 = 40 + 0.7 × 11 = 47.7 mmHg（実測47）。<br>【電解質の鉄則】ループ利尿薬による血管内脱水とCl・K・Mg喪失が原因です。低Mg血症（1.5 mg/dL）を放置すると尿細管ROMKからのK排泄が止まらないため、KClとともにMg補充が必須です。"
+  }
+);
+filterCases();
+</script>
+<script>
+// ==========================================
+// 中級編No.21～No.40 データ登録（完全整合版）
+// ==========================================
+window.allCases.push(
+  {
+    id: 21,
+    level: "中級",
+    title: "No.21：敗血症性ショックの進行と呼吸筋疲労（換気不全の合併）",
+    scenario: "74歳男性。肺炎球菌性肺炎から敗血症性ショックを発症。病棟で数時間の努力呼吸（呼吸数36回/分）が続いていたが、徐々に反応が鈍くなり、あえぎ様呼吸となってICUへ緊急入室した。",
+    vitals: "BP 76/40 (52) mmHg | HR 126 /min | RR 12 /min (あえぎ呼吸) | SpO2 88% (リザーバー10L) | JCS III-100",
+    labs: {
+      pH: "6.98", PaCO2: "52", PaO2: "62", HCO3: "11.8", BE: "-19.2",
+      Na: "141", K: "5.9", Cl: "106", Lac: "9.8 mmol/L", Alb: "3.2"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "代謝性アシドーシスに対する極限の呼吸性代償完了状態",
+      "敗血症性ショックによる乳酸アシドーシスに呼吸筋疲労（呼吸性アシドーシス）が合併した混合性アシドーシス",
+      "慢性閉塞性肺疾患（COPD）の慢性高二酸化炭素血症と腎性代償",
+      "鎮静薬過量単独による純粋な急性肺胞低換気",
+      "急性腎不全単独による高クロール性代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "リザーバーマスク酸素投与の継続による自発呼吸下での経過観察",
+      "直ちに行う気管挿管・人工呼吸管理（十分な分時換気量の確保）および急速輸液・昇圧薬投与による敗血症蘇生",
+      "意識障害・あえぎ呼吸下での非侵襲的陽圧換気（NPPV）の装着",
+      "気道確保・換気補助を行わない状態での8.4%炭酸水素ナトリウム200mL急速静注",
+      "透析室への即時移動と緊急間欠的血液透析（HD）の単独実施"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 6.98、HCO3- 11.8 mmol/Lより代謝性アシドーシスが主病態。<br>② 実測AG = 141 - (106 + 11.8) = 23.2 mEq/L（Alb補正AG = 25.2：AG開大）。Lac 9.8の上昇と合致する重度AGMA。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 11.8) = 25.4 mmHg。しかし実測PaCO2は52 mmHgと著しく高値であり、呼吸筋疲労による換気不全（呼吸性アシドーシス）が合併した混合性アシドーシスです。<br>④ 補正HCO3- = 11.8 + (25.2 - 12) = 25.0 mmol/L（22〜26の範囲内）。<br>【臨床の鉄則】換気不全下でメイロンを単独投与するとCO2が蓄積し細胞内アシドーシスを劇的に悪化させます。気管挿管・人工呼吸管理と循環蘇生が最優先です。"
+  },
+  {
+    id: 22,
+    level: "中級",
+    title: "No.22：院外心停止（OHCA）自己心拍再開（ROSC）直後の極期病態",
+    scenario: "58歳男性。急性心筋梗塞による心室細動（VF）で倒れ、バイスタンダーCPRと除細動2回により現場ROSC。救急外来搬送時の挿管下血液ガス。",
+    vitals: "BP 82/46 mmHg | HR 110 /min | 心電図：広範なST上昇＋テント状T波 | SpO2 96% (FiO2 1.0) | 体温 35.5℃",
+    labs: {
+      pH: "7.02", PaCO2: "58", PaO2: "140", HCO3: "14.5", BE: "-16.8",
+      Na: "138", K: "6.6", Cl: "100", Lac: "12.4 mmol/L", Alb: "4.0"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "心停止に伴う高度乳酸アシドーシスと換気不全の混合性アシドーシスおよび致死的高カリウム血症",
+      "カテコラミン過剰投与によるB型乳酸アシドーシス単独病態",
+      "過換気による急性呼吸性アルカローシスと低カリウム血症",
+      "慢性腎不全の増悪による高クロール性代謝性アシドーシス",
+      "低体温に伴う血液ガス測定上の偽性アシデミア"
+    ],
+    actionOptions: [
+      "グルコン酸カルシウム静注・GI療法・人工呼吸器の換気量適正化の実施と緊急冠動脈造影（PCI）への搬送",
+      "すべてのカテコラミン投与の中止と経過観察",
+      "人工呼吸器の一回換気量200mL・呼吸回数8回/分に落とす設定変更",
+      "フロセミド100mgの急速静注による利尿待機",
+      "血液pHが7.40に完全回復するまでの冠動脈インターベンション（PCI）の延期"
+    ],
+    correctCause: [0],
+    correctAction: [0],
+    explanation: "【計算プロセス】<br>① pH 7.02、HCO3- 14.5、AG = 138 - (100 + 14.5) = 23.5 mEq/L（AG開大）。心停止に伴う高度乳酸アシドーシス（Lac 12.4）。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 14.5) = 28.6 mmHgに対し実測58 mmHgであり、呼吸性アシドーシスが合併した混合性アシドーシス。<br>③ 補正HCO3- = 14.5 + (23.5 - 12) = 26.0 mmol/L（基準範囲内）。<br>【電解質と臨床対応】K 6.6 mEq/Lでテント状T波が出現しており、直ちにグルコン酸カルシウム静注で心筋膜安定化を図りつつ、GI療法・換気適正化と緊急PCIへ進みます。"
+  },
+  {
+    id: 23,
+    level: "中級",
+    title: "No.23：重症誤嚥性肺炎に伴う換気不全と敗血症の合併",
+    scenario: "82歳女性。脳梗塞後遺症で寝たきり。3日前からの誤嚥を契機に発熱と喀痰喀出困難が出現。努力呼吸を認めた後に意識レベルが低下し救急搬送。",
+    vitals: "BP 88/50 mmHg | HR 118 /min | RR 14 /min (浅呼吸) | SpO2 86% (O2 6L) | 両肺底にcoarse crackles",
+    labs: {
+      pH: "7.15", PaCO2: "52", PaO2: "54", HCO3: "17.6", BE: "-11.5",
+      Na: "138", K: "5.1", Cl: "105", Lac: "4.8 mmol/L", Alb: "2.8"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "高濃度酸素投与単独による慢性閉塞性肺疾患のCO2ナルコーシス",
+      "誤嚥による気道閉塞・無気肺（呼吸性アシドーシス）と敗血症性ショック（AGMA）の混合性アシドーシス",
+      "嘔吐による原発性代謝性アルカローシスと呼吸性代償",
+      "急性肺血栓塞栓症による死腔換気増大と呼吸性アルカローシス",
+      "低アルブミン血症による見かけ上の代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "酸素投与の即時中止と室内気での経過観察",
+      "気道吸引・気管挿管・人工呼吸管理の導入と、敗血症に対する急速輸液・抗菌薬・昇圧薬投与の開始",
+      "ループ利尿薬の静脈内投与による重炭酸排泄の促進",
+      "意識障害下での高流量鼻カニュラ（HFNC）単独管理",
+      "一般病棟での維持輸液のみによる保存的観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.15、HCO3- 17.6、実測AG = 138 - (105 + 17.6) = 15.4 mEq/L（Alb 2.8による補正AG = 15.4 + 3.0 = 18.4：AG開大）。敗血症による乳酸アシドーシス。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 17.6) = 32.3 mmHgに対し実測PaCO2 52 mmHgであり、喀痰閉塞と呼吸筋疲労による呼吸性アシドーシスが合併した混合性アシドーシスです。<br>③ 補正HCO3- = 17.6 + (18.4 - 12) = 24.0 mmol/L（基準範囲内）。<br>【臨床対応】重篤な低酸素血症・高CO2血症・意識障害・ショックが揃っており、気管挿管・人工呼吸管理と敗血症蘇生を行います。"
+  },
+  {
+    id: 24,
+    level: "中級",
+    title: "No.24：COPD患者における利尿薬過剰使用（慢性呼吸不全＋代謝性アルカローシス）",
+    scenario: "72歳男性。在宅酸素（1.5L/分）導入中の重症COPD。下肢浮腫に対し他院でフロセミド40mgが追加処方された後、食欲低下と傾眠が出現し家族に伴われ受診。",
+    vitals: "BP 104/60 mmHg | HR 76 /min | RR 12 /min | SpO2 93% (O2 1.5L) | 頸静脈虚脱・ツルゴール低下あり",
+    labs: {
+      pH: "7.49", PaCO2: "62", PaO2: "66", HCO3: "46.0", BE: "+18.2",
+      Na: "136", K: "2.8", Cl: "78", Lac: "1.0 mmol/L", Alb: "3.9", "尿中Cl-": "9 mEq/L"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "COPD急性増悪による非代償性CO2ナルコーシス",
+      "ループ利尿薬による高度な低Cl・低K性代謝性アルカローシスと、背景のCOPDによる慢性呼吸性アシドーシスの合併",
+      "原発性呼吸性アルカローシスと代謝性代償",
+      "原発性アルドステロン症によるCl不応性代謝性アルカローシス",
+      "うっ血性心不全による乳酸アシドーシス"
+    ],
+    actionOptions: [
+      "緊急気管挿管およびPaCO2 40 mmHgを目標とした急速強制換気",
+      "ループ利尿薬の中止と、0.9%生理食塩水および塩化カリウム（KCl）点滴によるCl・K・循環血漿量の補正",
+      "アセタゾラミド（ダイアモックス）連日静注による単独補正",
+      "副腎摘除術の準備とスピロノラクトン大量投与",
+      "8.4%炭酸水素ナトリウムの静脈内追加投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.49（アルカレミア！）、HCO3- 46.0 mmol/L、PaCO2 62 mmHg。<br>② アルカレミアを形成している主病態は高度な「代謝性アルカローシス」であり、PaCO2が62 mmHgまで著明上昇していることから背景のCOPDによる「呼吸性アシドーシス」が合併しています。<br>③ 簡易Stewart（Na - Cl - 35）= 136 - 78 - 35 = +23（著明な低Cl血症）。<br>【臨床の落とし穴】PaCO2 62だけを見て挿管・急速換気を行うとHCO3- 46が取り残され致死的アルカレミア（pH>7.65）に陥ります。利尿薬中止と生食＋KCl補充が正解です。"
+  },
+  {
+    id: 25,
+    level: "中級",
+    title: "No.25：安定期COPDの脱水による代償限界突破（二重障害）",
+    scenario: "78歳男性。重症COPDで平素のPaCO2は60 mmHg前後。数日前から感冒により経口摂取が低下し、口渇とふらつきを自覚して受診した。",
+    vitals: "BP 108/62 mmHg | HR 90 /min | RR 14 /min | SpO2 91% (O2 1L) | 口腔内乾燥著明",
+    labs: {
+      pH: "7.38", PaCO2: "60", PaO2: "62", HCO3: "34.5", BE: "+8.5",
+      Na: "138", K: "3.2", Cl: "91", Lac: "1.1 mmol/L", Alb: "4.2", BUN: "38 mg/dL", Cr: "1.3 mg/dL"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH正常域（7.35〜7.39）＋酸性側シフト：呼吸性アシドーシス優位",
+    step3: "AG正常",
+    step4: "代償範囲外：代謝性アルカローシスの合併",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "酸塩基平衡および電解質バランスの完全な正常状態",
+      "慢性呼吸性アシドーシスの代償予測を超えた、脱水・低Cl・低Kによる代謝性アルカローシスの合併",
+      "COPD急性増悪による純粋な急性呼吸性アシドーシス",
+      "腎不全進行による高カリウム性代謝性アシドーシス",
+      "敗血症合併によるアニオンギャップ開大型代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "輸液や処置を行わないままでの帰宅指示",
+      "0.9%生理食塩水およびカリウム補充による血管内脱水と低Cl・低K血症の是正",
+      "NPPV装着によるPaCO2 35 mmHgまでの急速低下",
+      "カリウム吸着薬の経口投与と水分制限",
+      "炭酸水素ナトリウムの静脈内投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.38（7.35〜7.39の酸性側基準範囲内）、PaCO2 60、HCO3- 34.5。<br>② 慢性呼吸性アシドーシス（PaCO2 60）に対する予測HCO3- = 24 + 0.35 × (60 - 40) = 31.0 mmol/L。<br>実測HCO3-は34.5 mmol/Lと予測値を大きく超えており、脱水に伴う代謝性アルカローシス（Contraction alkalosis）が合併しています。"
+  },
+  {
+    id: 26,
+    level: "中級",
+    title: "No.26：肺気腫患者の幽門狭窄・嘔吐による二重障害",
+    scenario: "69歳男性。COPDでフォロー中。胃潰瘍瘢痕による幽門狭窄があり、1週間前から胃部膨満感と毎日の嘔吐が出現。無気力状態となり救急搬送。",
+    vitals: "BP 98/54 mmHg | HR 88 /min | RR 12 /min | SpO2 90% (O2 1L) | 上腹部振水音あり",
+    labs: {
+      pH: "7.52", PaCO2: "64", PaO2: "60", HCO3: "51.0", BE: "+22.4",
+      Na: "135", K: "2.4", Cl: "72", Lac: "1.4 mmol/L", Alb: "3.9", "尿中Cl-": "6 mEq/L"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "重症肺炎合併による急性呼吸性アシドーシス単独病態",
+      "幽門狭窄・嘔吐による激しいHCl喪失（高度な代謝性アルカローシス・重度低K血症）と背景COPDの慢性呼吸性アシドーシスの合併",
+      "消化管穿孔に伴う敗血症性乳酸アシドーシス",
+      "腎血管性高血圧に伴うCl不応性代謝性アルカローシス",
+      "低張性脱水に伴う希釈性アシドーシス"
+    ],
+    actionOptions: [
+      "気管挿管および人工呼吸器による急激な過換気の実施",
+      "経鼻胃管による胃内減圧・PPI投与と、0.9%生理食塩水および塩化カリウム（KCl）の積極的輸液補充",
+      "8.4%炭酸水素ナトリウムの静脈内投与",
+      "フロセミド大量静注による強制利尿",
+      "グルコン酸カリウム経口液の内服と自宅経過観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.52（アルカレミア）、HCO3- 51.0、PaCO2 64。主病態は高度な代謝性アルカローシスであり、PaCO2 64と代償限界を超えているため背景COPDの呼吸性アシドーシスが合併しています。<br>② 簡易Stewart（Na - Cl - 35）= 135 - 72 - 35 = +28 と極端な低Cl血症、さらにK 2.4 mEq/Lの重度低K血症が合併。<br>【臨床対応】胃管減圧・PPI投与と生理食塩水＋KClの点滴補充が必須です。"
+  },
+  {
+    id: 27,
+    level: "中級",
+    title: "No.27：感染性胃腸炎（頻回嘔吐＋頻回下痢）の「隠蔽された」混合障害",
+    scenario: "28歳女性。生牡蠣摂取後に激しい上腹部痛、頻回の嘔吐と水様性下痢が同時に出現。経口摂取不能となり救急外来を受診。起立時めまい著明。",
+    vitals: "BP 94/56 mmHg | HR 116 /min | RR 18 /min | SpO2 99% (room air) | 口腔乾燥・皮膚ツルゴール低下",
+    labs: {
+      pH: "7.40", PaCO2: "40", PaO2: "98", HCO3: "24.0", BE: "0.0",
+      Na: "138", K: "3.2", Cl: "102", Lac: "1.1 mmol/L", Alb: "4.1"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害",
+    step3: "AG正常",
+    step4: "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）",
+    step5: "嘔吐（低Cl性アルカローシス）と下痢（高Cl性NAGMA）の相殺＋低K血症",
+    causeOptions: [
+      "体液・電解質・酸塩基平衡のすべてに異常がない完全正常状態",
+      "嘔吐による代謝性アルカローシス（HCl喪失）と下痢による代謝性アシドーシス（HCO3-喪失）の完全相殺と脱水・低K血症",
+      "心因性ストレスによる過換気症候群と代謝性代償",
+      "腸管壊死に伴うアニオンギャップ開大型代謝性アシドーシス",
+      "抗利尿ホルモン不適合分泌症候群（SIADH）"
+    ],
+    actionOptions: [
+      "点滴処置を行わないままでの帰宅指示",
+      "病歴・身体所見（脱水・頻脈・低血圧）に基づく細胞外液（晶質液）およびカリウムの十分な点滴補充",
+      "抗不安薬の静脈内投与と経過観察",
+      "緊急試験開腹術の実施",
+      "厳格な水分制限と高張食塩水の投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【臨床の最大の落とし穴：相殺された二重障害】<br>血液ガス数値は「pH 7.40, PaCO2 40, HCO3- 24, BE 0」と一見正常ですが、患者は「激しい嘔吐（代謝性アルカローシス）」と「激しい水様下痢（高Cl性代謝性アシドーシス）」を同時に起こし、逆方向の力が中央で釣り合っているだけです。数値の正常さに惑わされず、脱水と低K血症（3.2 mEq/L）に対する輸液・電解質補充を行います。"
+  },
+  {
+    id: 28,
+    level: "中級",
+    title: "No.28：直腸癌術後イレウス＋大量下痢（NAGMA＋代謝性アルカローシス）",
+    scenario: "68歳男性。直腸低位前方切除術後、小腸通過障害に対して胃管持続吸引（1日1,000mL）中。さらに抗菌薬関連腸炎を併発し、水様便が1日1,500mL排泄された。",
+    vitals: "BP 102/62 mmHg | HR 98 /min | RR 16 /min | SpO2 98% (room air) | 尿量 25 mL/hr",
+    labs: {
+      pH: "7.39", PaCO2: "39", PaO2: "92", HCO3: "23.0", BE: "-1.2",
+      Na: "137", K: "2.7", Cl: "102", Lac: "1.3 mmol/L", Alb: "3.8"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害",
+    step3: "AG正常",
+    step4: "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）",
+    step5: "嘔吐（低Cl性アルカローシス）と下痢（高Cl性NAGMA）の相殺＋低K血症",
+    causeOptions: [
+      "術後の正常な回復過程における生理的酸塩基平衡",
+      "胃管吸引による酸喪失（代謝性アルカローシス）と腸炎下痢による重炭酸喪失（NAGMA）の併存・相殺と重度低K血症",
+      "生理食塩水過剰投与単独による高クロール性アシドーシス",
+      "絞扼性イレウスによる高度乳酸アシドーシス",
+      "無気肺による急性呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "低張維持輸液（3号液）のみによる現状維持",
+      "上下部消化管からの喪失量に見合った晶質液補充と、重度低K血症（2.7 mEq/L）に対する積極的カリウム補正および腸炎治療",
+      "フロセミド投与によるクロール排泄の促進",
+      "8.4%炭酸水素ナトリウムの急速静注",
+      "緊急気管挿管および人工呼吸管理の開始"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>pH 7.39、PaCO2 39、HCO3- 23.0と一見ほぼ正常範囲ですが、胃管ドレナージ（HCl喪失）と水様下痢（HCO3-喪失）が相殺し合っており、双方からK+が失われてK 2.7 mEq/Lの重度低K血症を呈しています。喪失量に見合う細胞外液とK+の積極的補充が必要です。"
+  },
+  {
+    id: 29,
+    level: "中級",
+    title: "No.29：回腸瘻（イレオストミー）大量排液＋サイアザイド内服",
+    scenario: "56歳女性。潰瘍性大腸炎で全結腸切除・回腸嚢肛門吻合術＋一時的回腸瘻造設中。高血圧に対してサイアザイドを内服していたが、ストーマ排液が1日2,500mLと急増し脱力感で受診。",
+    vitals: "BP 90/52 mmHg | HR 106 /min | RR 18 /min | SpO2 99% (room air) | 体重 -4kg",
+    labs: {
+      pH: "7.38", PaCO2: "38", PaO2: "95", HCO3: "21.5", BE: "-3.2",
+      Na: "134", K: "2.6", Cl: "100", Lac: "1.0 mmol/L", Alb: "3.8"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害",
+    step3: "AG正常",
+    step4: "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）",
+    step5: "嘔吐（低Cl性アルカローシス）と下痢（高Cl性NAGMA）の相殺＋低K血症",
+    causeOptions: [
+      "本態性高血圧に伴う軽度の電解質変動",
+      "回腸ストーマからのアルカリ腸液大量喪失（NAGMA）とサイアザイドによる低Cl・低K性アルカローシスの競合および高度脱水",
+      "糖尿病性ケトアシドーシスによるアニオンギャップ開大",
+      "過換気症候群による呼吸性アルカローシス",
+      "副腎不全による高カリウム性アシドーシス"
+    ],
+    actionOptions: [
+      "サイアザイド系利尿薬の継続と飲水制限の指示",
+      "サイアザイド系利尿薬の中止と、カリウム・ナトリウム・クロールを含む細胞外液の十分な点滴補充",
+      "速効型インスリン持続静注の開始",
+      "鎮静薬投与による呼吸回数の抑制",
+      "カリウムを含まない重曹水単独の点滴"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【病態生理】<br>回腸ストーマからの大量排液（HCO3-喪失によるNAGMA要因）とサイアザイド内服（Cl・K喪失による代謝性アルカローシス要因）が競合し、pH 7.38と一見軽微な変化に見えますが、高度脱水とK 2.6 mEq/Lの重度低K血症が存在します。利尿薬中止と十分な輸液・K補充を行います。"
+  },
+  {
+    id: 30,
+    level: "中級",
+    title: "No.30：敗血症性ショックの生食大量蘇生後（AGMA＋医原性NAGMAの混合）",
+    scenario: "67歳男性。重症胆管炎による敗血症性ショックに対し、他院ERで生理食塩水計4,000mLが急速投与された後に転院搬送。昇圧薬投与下で血圧は維持されているが頻呼吸が持続。",
+    vitals: "BP 102/58 mmHg | HR 102 /min (ノルアドレナリン 0.15γ) | RR 26 /min | SpO2 97% (O2 4L)",
+    labs: {
+      pH: "7.22", PaCO2: "25", PaO2: "92", HCO3: "10.0", BE: "-16.5",
+      Na: "142", K: "4.4", Cl: "116", Lac: "5.5 mmol/L", Alb: "3.0"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "純粋な乳酸アシドーシス単独による代謝性アシドーシス",
+      "敗血症による乳酸アシドーシス（AGMA）と生理食塩水大量投与による高Cl性アシドーシス（NAGMA）の二重代謝性アシドーシス",
+      "中枢性過換気による原発性呼吸性アルカローシス",
+      "検査機器の誤差による偽性高乳酸血症",
+      "嘔吐合併による隠れた代謝性アルカローシス"
+    ],
+    actionOptions: [
+      "0.9%生理食塩水2,000mLのさらなる急速追加投与",
+      "輸液製剤のBalanced crystalloid（リンゲル液）への変更と緊急胆道ドレナージ（ERCP等）・抗菌薬治療の実施",
+      "鎮静薬投与による呼吸数および分時換気量の抑制",
+      "昇圧薬の即時中止と経過観察",
+      "5%ブドウ糖液単独での急速静脈内投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：二重代謝性アシドーシスの見破り方】<br>① pH 7.22、HCO3- 10.0、実測AG = 142 - (116 + 10) = 16.0 mEq/L（Alb補正AG = 18.5：AG開大）。<br>② 補正HCO3- = 10.0 + (18.5 - 12) = 16.5 mmol/L（<22）！ 簡易Stewart（Na - Cl - 35）= -9。<br>ΔAGの増加幅よりΔHCO3-の低下幅が圧倒的に大きく、「乳酸アシドーシス（AGMA）」に「生食大量負荷による高Cl性NAGMA」が合併しています。"
+  },
+  {
+    id: 31,
+    level: "中級",
+    title: "No.31：糖尿病性ケトアシドーシス（DKA）治療経過中の高Cl血症シフト",
+    scenario: "22歳女性。1型糖尿病。インスリン中断によるDKAで入院。生理食塩水の大量輸液とインスリン持続静注を開始して12時間後。血糖値は210 mg/dLまで低下したが、アシデミアと頻呼吸が残存している。",
+    vitals: "BP 112/68 mmHg | HR 88 /min | RR 24 /min | SpO2 99% (room air) | 尿量良好",
+    labs: {
+      pH: "7.27", PaCO2: "26", PaO2: "105", HCO3: "11.6", BE: "-13.5",
+      Na: "138", K: "4.0", Cl: "115", Lac: "1.2 mmol/L", Glu: "210 mg/dL", "血清βヒドロキシ酪酸": "1.8 mmol/L (治療前 8.5)"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "インスリン不応性による糖尿病性ケトアシドーシス（AGMA）の持続・増悪",
+      "ケトン体消失（AG正常化）後に、生食大量負荷と尿中ケトン酸塩排泄により移行した高クロール性代謝性アシドーシス（NAGMA）",
+      "インスリン過剰による重症低カリウム性アルカローシス",
+      "敗血症合併による新規のA型乳酸アシドーシス",
+      "呼吸筋疲労による急性呼吸性アシドーシスの合併"
+    ],
+    actionOptions: [
+      "インスリン投与速度の3倍増量と0.9%生理食塩水急速負荷の継続",
+      "生理食塩水からBalanced crystalloidおよびブドウ糖・カリウム含有維持輸液への切り替えとインスリン漸減管理",
+      "塩化カリウム（KCl）100mEqのワンショット静注",
+      "8.4%炭酸水素ナトリウムの大量急速静注",
+      "緊急気管挿管および機械換気の開始"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：DKA治療中のAGMAからNAGMAへのシフト】<br>① pH 7.27、HCO3- 11.6ですが、AG = 138 - (115 + 11.6) = 11.4 mEq/Lと完全に正常化しています！<br>② 簡易Stewart（Na - Cl - 35）= -12。<br>DKA治療経過中、大量の生食投与と尿中へのケトン酸Na塩排泄によりAGMAから高Cl性NAGMAへ移行する典型像です。ケトーシス自体は順調に解除されており、生食からリンゲル液やブドウ糖加輸液へ切り替えます。"
+  },
+  {
+    id: 32,
+    level: "中級",
+    title: "No.32：閉塞性腎盂腎炎による敗血症＋急性腎障害（二重代謝性アシドーシス）",
+    scenario: "79歳女性。尿路結石による右水腎症・閉塞性腎盂腎炎から敗血症を発症。意識障害とショックを呈している。尿量は直近2時間で5mLと乏尿。",
+    vitals: "BP 80/44 mmHg | HR 115 /min | RR 28 /min | SpO2 96% (O2 4L) | BT 39.2℃",
+    labs: {
+      pH: "7.18", PaCO2: "22", PaO2: "88", HCO3: "8.0", BE: "-19.5",
+      Na: "136", K: "5.6", Cl: "108", Lac: "6.2 mmol/L", Alb: "2.8", BUN: "68 mg/dL", Cr: "4.2 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "敗血症・AKIによる不揮発酸蓄積（AGMA）と尿細管酸排泄障害（NAGMA）の二重代謝性アシドーシス",
+      "発熱に伴う原発性呼吸性アルカローシスと代謝性代償",
+      "脱水単独による高ナトリウム性代謝性アルカローシス",
+      "アニオンギャップ開大を伴わない純粋な1型尿細管性アシドーシス",
+      "嘔吐合併による代謝性アルカローシス"
+    ],
+    actionOptions: [
+      "緊急尿管ステント留置（または経皮的腎瘻造設）による尿路閉塞解除・抗菌薬・循環蘇生と持続的腎代替療法（CRRT）の準備",
+      "鎮静薬投与によるPaCO2 40 mmHgまでの換気抑制",
+      "閉塞解除を行わない状態でのフロセミド大量静注",
+      "0.9%生理食塩水3,000mLの単独急速全開投与",
+      "経口抗菌薬の処方と外来での経過観察"
+    ],
+    correctCause: [0],
+    correctAction: [0],
+    explanation: "【計算プロセス】<br>① pH 7.18、HCO3- 8.0、実測AG = 136 - (108 + 8.0) = 20.0 mEq/L（Alb補正AG = 23.0：AG開大）。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 8.0) = 20.8 mmHg（実測22 mmHgで予測範囲内の適切な呼吸代償）。<br>③ 補正HCO3- = 8.0 + (23.0 - 12) = 19.0 mmol/L（<22）であり、乳酸・尿毒症（AGMA）に尿細管障害（NAGMA）が重なった二重代謝性アシドーシスです。<br>【臨床対応】閉塞性腎盂腎炎では緊急のドレナージ（尿管ステント等）が救命の絶対条件です。"
+  },
+  {
+    id: 33,
+    level: "中級",
+    title: "No.33：肝硬変・腹水に対する利尿薬投与＋肝性脳症の過換気（二重アルカローシス）",
+    scenario: "63歳男性。アルコール性肝硬変。難治性腹水に対しスピロノラクトンとフロセミドを増量中。2日前から羽ばたき振戦と見当識障害が出現し、呼吸が荒くなって救急搬送。",
+    vitals: "BP 102/58 mmHg | HR 86 /min | RR 26 /min | SpO2 98% (room air) | JCS II-20 | 腹水・黄疸あり",
+    labs: {
+      pH: "7.64", PaCO2: "24", PaO2: "96", HCO3: "25.0", BE: "+4.2",
+      Na: "138", K: "3.0", Cl: "99", Lac: "1.4 mmol/L", Alb: "4.0", NH3: "185 μg/dL"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "代償範囲外：代謝性アルカローシスの合併",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "重炭酸ナトリウム過剰摂取による単独の代謝性アルカローシス",
+      "肝性脳症の中枢性過換気（呼吸性アルカローシス）と利尿薬による低Cl・低K性代謝性アルカローシスが重なった二重アルカローシス",
+      "肝不全に伴う重度乳酸アシドーシスと呼吸性代償",
+      "大量腹水による肺胞低換気と呼吸性アシドーシス",
+      "肝腎症候群による高クロール性代謝性アシドーシス"
+    ],
+    actionOptions: [
+      "中心静脈からの塩酸（HCl）急速注入",
+      "利尿薬の休止・合成二糖類（ラクツロース）や分岐鎖アミノ酸の投与、およびカリウム・クロールの補正",
+      "8.4%炭酸水素ナトリウムの静脈内投与",
+      "緊急気管挿管および筋弛緩下での極端な低換気管理",
+      "全腹水の急速一括穿刺排液のみの実施"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：二重アルカローシスの見破り方】<br>① pH 7.64（危険な高度アルカレミア）、PaCO2 24 mmHg（肝性脳症による呼吸性アルカローシス）。<br>② 急性呼吸性アルカローシス予測HCO3- = 24 - 0.2 × (40 - 24) = 20.8 mmol/Lに対し、実測HCO3-は25.0 mmol/Lと逆に高値であり、利尿薬による低Cl・低K性代謝性アルカローシス（Na-Cl-35 = +4、K 3.0）が合併してpHを7.64まで押し上げています。"
+  },
+  {
+    id: 34,
+    level: "中級",
+    title: "No.34：心不全（利尿薬内服中）に合併した急性肺血栓塞栓症",
+    scenario: "76歳女性。心不全でフロセミドを内服中。昨日から自宅で臥床していたが、トイレ歩行時に急激な呼吸困難と失神をきたし救急搬送された。",
+    vitals: "BP 88/52 mmHg | HR 118 /min | RR 30 /min | SpO2 87% (room air) | 頸静脈怒張あり",
+    labs: {
+      pH: "7.61", PaCO2: "26", PaO2: "54", HCO3: "25.0", BE: "+3.8",
+      Na: "139", K: "3.1", Cl: "100", Lac: "1.8 mmol/L", Alb: "4.0", "A-aDO2": "64 mmHg（著明開大）"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "代償範囲外：代謝性アルカローシスの合併",
+    step5: "低Cl・低K血症（塩化物欠乏）を維持因子とする単一障害",
+    causeOptions: [
+      "精神的ストレスに伴う心因性過換気症候群",
+      "急性肺血栓塞栓症による低酸素性過換気（呼吸性アルカローシス）と利尿薬性代謝性アルカローシスの二重アルカローシス",
+      "COPD急性増悪による2型呼吸不全",
+      "敗血症性ショックによる重度乳酸アシドーシス",
+      "慢性心不全の肺うっ血単独による呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "酸素投与を行わない状態での安静経過観察",
+      "高濃度酸素投与・循環動態サポートの開始と、造影CT・心エコーによる肺塞栓評価および抗凝固/血栓溶解療法の実施",
+      "死腔増大による二酸化炭素再吸入の実施",
+      "炭酸水素ナトリウムの急速静注",
+      "フロセミド80mgの急速静脈内追加投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.61（高度アルカレミア）、PaCO2 26、PaO2 54（A-aDO2 64開大）。<br>② 急性呼吸性アルカローシス予測HCO3- = 24 - 0.2 × (40 - 26) = 21.2 mmol/Lに対し実測25.0 mmol/Lであり、フロセミド内服による低Cl・低K性代謝性アルカローシスが合併した二重アルカローシスです。<br>【臨床対応】失神・低血圧・A-aDO2著明開大を伴う高リスク急性肺血栓塞栓症であり、酸素投与と抗凝固・血栓溶解療法へ進みます。"
+  },
+  {
+    id: 35,
+    level: "中級",
+    title: "No.35：術後創部痛による過換気＋胃液吸引（二重アルカローシスと重度テタニー）",
+    scenario: "46歳女性。胃切除後2日目。硬膜外麻酔が抜去された後、激しい創部痛から頻呼吸（40回/分）となり、同時に両手の硬直・攣縮（助産師手位）が出現した。胃管からは淡緑色液が持続吸引されている。",
+    vitals: "BP 138/82 mmHg | HR 112 /min | RR 38 /min | SpO2 100% (room air) | Trousseau徴候陽性",
+    labs: {
+      pH: "7.67", PaCO2: "21", PaO2: "122", HCO3: "23.5", BE: "+3.5",
+      Na: "138", K: "3.2", Cl: "101", Lac: "1.2 mmol/L", "イオン化Ca2+": "0.78 mmol/L（危険値）"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG正常",
+    step4: "代償範囲外：代謝性アルカローシスの合併",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "術後縫合不全に伴う代謝性アシドーシス",
+      "創部痛による過換気（呼吸性アルカローシス）と胃液吸引（代謝性アルカローシス）の重複による極度アルカレミアおよびイオン化Ca急減",
+      "特発性てんかん発作による全身性強直間代痙攣",
+      "術後副甲状腺機能亢進症による高カルシウム血症",
+      "肺血栓塞栓症による急性右心不全"
+    ],
+    actionOptions: [
+      "8.4%炭酸水素ナトリウムの静脈内投与",
+      "十分な鎮痛処置による過換気の解除、グルコン酸カルシウム静注によるテタニー改善、および生理食塩水・KClによる電解質補正",
+      "フェニトイン（抗てんかん薬）の急速静脈内投与",
+      "鎮痛を行わない状態での筋弛緩薬単独投与",
+      "フロセミドと生理食塩水大量負荷によるカルシウム利尿"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセスと電解質病態】<br>① pH 7.67（極度のアルカレミア）、PaCO2 21 mmHg。<br>② 急性呼吸性アルカローシス予測HCO3- = 20.2 mmol/Lに対し実測23.5 mmol/Lであり、疼痛による過換気と胃液吸引（代謝性アルカローシス）が重なっています。pH 7.67まで上昇したことでアルブミンにCa2+が大量結合し、イオン化Ca2+が0.78 mmol/Lまで急減してテタニーを起こしています。十分な鎮痛とカルシウム補充、Cl・K補正を行います。"
+  },
+  {
+    id: 36,
+    level: "中級",
+    title: "No.36：重症肺炎・ARDS初期の過換気を伴う敗血症（AGMA＋呼吸性アルカローシス）",
+    scenario: "65歳男性。重症レジオネラ肺炎。呼吸困難と高熱で来院。PaO2低下に対して著明な呼吸努力で分時換気量を増やし、何とか酸素化を維持しているが末梢冷感を認める。",
+    vitals: "BP 92/56 mmHg | HR 120 /min | RR 34 /min | SpO2 93% (O2 6Lマスク) | BT 39.8℃",
+    labs: {
+      pH: "7.39", PaCO2: "20", PaO2: "68", HCO3: "11.6", BE: "-11.2",
+      Na: "136", K: "4.2", Cl: "101", Lac: "5.8 mmol/L", Alb: "3.2", "P/F比": "136"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH正常域（7.35〜7.39）＋酸性側シフト：代謝性アシドーシス優位",
+    step3: "AG開大",
+    step4: "代償超過：呼吸性アルカローシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "酸塩基平衡異常を伴わない軽症気管支炎",
+      "敗血症による乳酸アシドーシス（AGMA）と、低酸素・高熱による原発性呼吸性アルカローシス（代償超過）の合併",
+      "代謝性アシドーシスに対する予測範囲内の単純代償",
+      "嘔吐による代謝性アルカローシスと呼吸性代償",
+      "慢性閉塞性肺疾患による慢性呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "一般病棟での経口抗菌薬投与と経過観察",
+      "重症呼吸不全（ARDS）および敗血症性ショックとしてのICU入室・気管挿管人工呼吸管理と初期蘇生輸液・抗菌薬投与の開始",
+      "酸素投与量の減量と鎮静薬の単独投与",
+      "0.9%生理食塩水のみの緩徐点滴",
+      "8.4%炭酸水素ナトリウム単独の急速静注"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：代償超過（呼吸性アルカローシスの合併）】<br>① pH 7.39（見かけ上正常域だが酸性側）、HCO3- 11.6、実測AG = 23.4 mEq/L（Alb補正AG = 25.4：AG開大、Lac 5.8）。<br>② 代謝性アシドーシスの予測PaCO2 = 40 - 1.2 × (24 - 11.6) = 25.1 mmHg。<br>実測PaCO2は20 mmHgと予測値をさらに下回っており、重症肺炎の低酸素刺激・高熱による「呼吸性アルカローシス」が合併してpHを正常域に見せかけています。放置すれば直ちに呼吸筋疲労から心停止に至る超重症病態です。"
+  },
+  {
+    id: 37,
+    level: "中級",
+    title: "No.37：グラム陰性菌菌血症の超初期（エンドトキシンによる過換気＋軽度乳酸上昇）",
+    scenario: "70歳女性。胆管炎発症数時間後。突然の悪寒戦慄と発熱。血圧はまだ保たれているが、異常に深く速い呼吸（32回/分）を繰り返している。",
+    vitals: "BP 118/68 mmHg | HR 108 /min | RR 32 /min | SpO2 99% (room air) | BT 39.4℃",
+    labs: {
+      pH: "7.47", PaCO2: "24", PaO2: "102", HCO3: "17.0", BE: "-5.5",
+      Na: "138", K: "3.8", Cl: "102", Lac: "3.2 mmol/L", Alb: "3.8"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG開大",
+    step4: "代償範囲外：代謝性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "不安・緊張に伴う単純な心因性過換気症候群",
+      "エンドトキシン等の中枢刺激による呼吸性アルカローシスと、組織低灌流による初期乳酸アシドーシス（AGMA）の合併",
+      "下痢に伴うAG非開大型代謝性アシドーシス単独病態",
+      "尿細管性アシドーシスと呼吸性代償",
+      "利尿薬による代謝性アルカローシス"
+    ],
+    actionOptions: [
+      "抗不安薬の内服処方と自宅への帰宅指示",
+      "敗血症初期徴候としての血液培養採取・広域抗菌薬投与・細胞外液輸液および胆道ドレナージの準備",
+      "炭酸水素ナトリウムの急速静脈内投与",
+      "緊急気管挿管および筋弛緩下での換気回数10回/分への制限",
+      "低張電解質輸液（3号液）のみの緩徐点滴"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.47（アルカレミア）、PaCO2 24 mmHg、HCO3- 17.0 mmol/L。<br>② 実測AG = 138 - (102 + 17.0) = 19.0 mEq/L（Alb補正AG = 19.5：AG開大！ Lac 3.2）。<br>③ 急性呼吸性アルカローシスの代償予測（HCO3- = 24 - 0.2×16 = 20.8）よりも実測HCO3-（17.0）が有意に低く、敗血症超初期の「中枢性過換気（呼吸性アルカローシス）＋初期乳酸アシドーシス（AGMA）」の合併と診断できます。"
+  },
+  {
+    id: 38,
+    level: "中級",
+    title: "No.38：広範囲熱傷急性期（高代謝・疼痛過換気＋循環不全）",
+    scenario: "38歳男性。火災により体表面積35%のII度〜III度熱傷を受傷。受傷2時間後、激しい創部痛のため著明な頻呼吸を呈している。",
+    vitals: "BP 100/58 mmHg | HR 124 /min | RR 30 /min | SpO2 98% (O2 4L) | 末梢冷感著明",
+    labs: {
+      pH: "7.39", PaCO2: "27", PaO2: "98", HCO3: "16.0", BE: "-7.5",
+      Na: "140", K: "5.0", Cl: "105", Lac: "4.5 mmol/L", Alb: "3.6"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH正常域（7.35〜7.39）＋酸性側シフト：代謝性アシドーシス優位",
+    step3: "AG開大",
+    step4: "代償超過：呼吸性アルカローシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "循環血液量および酸塩基平衡が正常に維持された軽症熱傷",
+      "熱傷性ショック（血漿漏出）による乳酸アシドーシス（AGMA）と疼痛・交感神経興奮による呼吸性アルカローシスの拮抗状態",
+      "急性腎不全単独による高カリウム性アシドーシス",
+      "気道熱傷による急性呼吸性アシドーシス",
+      "生理食塩水投与による高クロール性アシドーシス"
+    ],
+    actionOptions: [
+      "維持輸液（1日1,500mL）のみによる経過観察",
+      "Baxter公式等に基づく乳酸リンゲル液の大量初期蘇生輸液とオピオイドによる十分な鎮痛管理",
+      "緊急血液透析によるカリウム除去の単独実施",
+      "リザーバーマスクによる二酸化炭素再吸入",
+      "利尿薬投与による尿量確保の試行"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.39（見かけ上正常域だが酸性側）、PaCO2 27、HCO3- 16.0、実測AG = 19.0 mEq/L（Alb補正AG = 20.0：AG開大、Lac 4.5）。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 16.0) = 30.4 mmHgに対し実測27 mmHgと低く、熱傷性ショック（AGMA）と激痛による過換気（呼吸性アルカローシス）が拮抗してpHを7.39に見せかけています。乳酸リンゲル液による大量蘇生輸液と確実な鎮痛が不可欠です。"
+  },
+  {
+    id: 39,
+    level: "中級",
+    title: "No.39：SGLT2阻害薬内服中の正常血糖糖尿病性ケトアシドーシス（euDKA）",
+    scenario: "55歳女性。2型糖尿病に対してメトホルミンとダパグリフロジン（SGLT2阻害薬）を内服中。急性胃腸炎に罹患し食事摂取不良であったが投薬を継続。著明な倦怠感と頻呼吸で受診した。随時血糖は185 mg/dL。",
+    vitals: "BP 110/68 mmHg | HR 96 /min | RR 28 /min | SpO2 99% (room air) | BT 36.8℃",
+    labs: {
+      pH: "7.23", PaCO2: "22", PaO2: "102", HCO3: "9.0", BE: "-16.5",
+      Na: "136", K: "4.2", Cl: "100", Lac: "1.5 mmol/L", Alb: "4.0", Glu: "185 mg/dL", "血清βヒドロキシ酪酸": "7,500 μmol/L"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "血糖値200 mg/dL未満に基づくケトアシドーシス否定と心因性過換気",
+      "SGLT2阻害薬による尿糖排泄促進とインスリン欠乏に伴う正常血糖糖尿病性ケトアシドーシス（euDKA）",
+      "検体測定異常による偽性アニオンギャップ開大",
+      "胃腸炎下痢に伴うAG非開大型（高Cl性）代謝性アシドーシス",
+      "メトホルミン蓄積による重度乳酸アシドーシス単独病態"
+    ],
+    actionOptions: [
+      "点滴を行わないままでの帰宅指示とSGLT2阻害薬の継続",
+      "SGLT2阻害薬の中止、細胞外液およびブドウ糖含有輸液の並行投与下での速効型インスリン持続静注とカリウム補正",
+      "ブドウ糖を一切投与しない状態での高用量インスリン単独静注",
+      "インスリンを使用しない8.4%炭酸水素ナトリウム単独の急速静注",
+      "フロセミド静注によるケトン体の強制排泄"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：euDKAの診断】<br>① pH 7.23、HCO3- 9.0、AG = 136 - (100 + 9.0) = 27.0 mEq/L（AG開大！）。予測PaCO2 = 40 - 1.2 × 15 = 22.0 mmHg（実測22 mmHg）。補正HCO3- = 9.0 + (27.0 - 12) = 24.0 mmol/L（単一AGMA）。<br>② 血糖値は185 mg/dLと軽度高値にとどまりますが、血清βヒドロキシ酪酸が7,500 μmol/L（7.5 mmol/L）と激増しており、SGLT2阻害薬による「正常血糖DKA（euDKA）」と診断できます。低血糖を防ぎつつケトン産生を止めるため、ブドウ糖輸液とインスリン持続静注を併用します。"
+  },
+  {
+    id: 40,
+    level: "中級",
+    title: "No.40：BRASH症候群（高度徐脈・低血圧・軽度高カリウム血症の悪循環）",
+    scenario: "81歳女性。陳旧性心筋梗塞・心不全でカルベジロール（β遮断薬）とエナラプリル（ACE阻害薬）を内服中。脱水を契機に意識が朦朧となり救急搬送。心電図で著明な接合部調律徐脈（HR 32/分）を認める。",
+    vitals: "BP 74/42 mmHg | HR 32 /min (徐脈・不整脈) | RR 22 /min | SpO2 95% (O2 2L) | 四肢冷感",
+    labs: {
+      pH: "7.31", PaCO2: "30", PaO2: "86", HCO3: "14.8", BE: "-10.2",
+      Na: "136", K: "5.8", Cl: "100", Lac: "3.5 mmol/L", Alb: "4.0", BUN: "56 mg/dL", Cr: "2.8 mg/dL (ベースライン 0.9)"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "右冠動脈閉塞による急性下壁心筋梗塞単独病態",
+      "腎不全・β遮断薬蓄積・高K血症（5.8 mEq/L）の相乗効果による房室伝導抑制と徐脈性ショック（BRASH症候群）",
+      "洞不全症候群による特発性徐脈と軽度の電解質異常",
+      "単純な低カリウム性代謝性アシドーシス",
+      "呼吸中枢抑制による急性呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "電解質補正を行わないままでの緊急冠動脈造影検査の実施",
+      "被疑薬中止、グルコン酸カルシウム静注・GI療法による高K是正、細胞外液輸液およびカテコラミン（または一時ペーシング）の実施",
+      "高K対策を省略したノルアドレナリン単独投与",
+      "カルベジロールおよびエナラプリルの内服継続と重曹水投与",
+      "緊急気管挿管のみの実施と経過観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセスとBRASH症候群の病態】<br>① pH 7.31、HCO3- 14.8、AG = 136 - (100 + 14.8) = 21.2 mEq/L（AG開大：腎障害＋Lac 3.5）。予測PaCO2 = 29.0 mmHg（実測30 mmHg）。補正HCO3- = 14.8 + 9.2 = 24.0 mmol/L（基準範囲内）。<br>② K 5.8 mEq/Lは単独では高度徐脈を起こしにくい値ですが、脱水・AKIによるβ遮断薬蓄積と相乗的に房室結節を抑制し、重篤な徐脈とショックの悪循環（BRASH症候群）を形成しています。カルシウム静注・GI療法・輸液・徐脈対策（ペーシング等）を同時に進めます。"
+  }
+);
+filterCases();
+</script>
+<script>
+// ==========================================
+// 上級編No.41～No.60 データ登録（完全整合版）
+// ==========================================
+window.allCases.push(
+  {
+    id: 41,
+    level: "上級",
+    title: "No.41：1型糖尿病DKA＋頻回嘔吐＋代償を超える過換気（三重混合障害）",
+    scenario: "34歳女性。1型糖尿病。感冒後に食事摂取不能となりインスリンを自己中断。前日から激しい嘔吐を繰り返し、著明な頻呼吸と倦怠感で救急搬送された。",
+    vitals: "BP 90/45 mmHg | HR 130 /min | RR 28 /min | SpO2 99% (room air) | 末梢冷感あり",
+    labs: {
+      pH: "7.12", PaCO2: "12", PaO2: "118", HCO3: "3.8", BE: "-24.5",
+      Na: "134", K: "4.6", Cl: "94", Lac: "3.7 mmol/L", Alb: "4.0", Glu: "970 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償超過：呼吸性アルカローシスの合併",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "重症肺炎合併による呼吸性アシドーシスと乳酸アシドーシスの合併",
+      "DKA・乳酸上昇による高度AGMAを主体に、嘔吐による代謝性アルカローシスと過換気（呼吸性アルカローシス）が合併した三重障害",
+      "総カリウム量の過剰蓄積を伴う純粋なケトアシドーシス単一病態",
+      "高浸透圧高血糖症候群（HHS）単独による高クロール性アシドーシス",
+      "過換気症候群に伴う急性呼吸性アルカローシス単独病態"
+    ],
+    actionOptions: [
+      "ミダゾラムとロクロニウムによる急速気管挿管および換気回数12回/分への制限",
+      "十分な細胞外液（晶質液）の急速輸液とインスリン持続静注の開始、および血清カリウム値の厳重監視・早期補充",
+      "カリウム補充を一切行わない状態でのインスリン大量静注の継続",
+      "リザーバーマスクを用いた二酸化炭素の再吸入",
+      "8.4%炭酸水素ナトリウム250mLの単独急速全開投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：典型的な三重酸塩基平衡障害】<br>① pH 7.12（アシデミア）、HCO3- 3.8 mmol/Lより主病態は代謝性アシドーシス。<br>② AG = 134 - (94 + 3.8) = 36.2 mEq/L（AG開大！ ΔAG = 24.2）。DKA＋乳酸による高度AGMA。<br>③ 予測PaCO2 = 40 - 1.2 × (24 - 3.8) = 15.8 mmHgに対し、実測PaCO2は12 mmHgとさらに低く、呼吸性アルカローシスが合併。<br>④ 補正HCO3- = 3.8 + 24.2 = 28.0 mmol/L（>26）より、頻回嘔吐による「隠れた代謝性アルカローシス」も合併した三重障害です。"
+  },
+  {
+    id: 42,
+    level: "上級",
+    title: "No.42：DKA治療中に発症した重篤な低リン血症と呼吸筋麻痺",
+    scenario: "28歳男性。重症DKAで入院し、大量輸液・インスリン持続静注・K補充を実施して24時間後。血糖とケトン体は順調に改善していたが、急に呼吸が浅くなり、四肢脱力と傾眠が出現した。",
+    vitals: "BP 110/64 mmHg | HR 92 /min | RR 10 /min (浅い呼吸) | SpO2 91% (room air) | 四肢筋力低下",
+    labs: {
+      pH: "7.25", PaCO2: "50", PaO2: "64", HCO3: "21.0", BE: "-5.8",
+      Na: "139", K: "3.8", Cl: "108", "血清無機リン(P)": "0.6 mg/dL (基準 2.5〜4.5)", Glu: "160 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "呼吸性アシドーシス",
+    step3: "AG正常",
+    step4: "代償範囲外：代謝性アシドーシスの合併",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "インスリン投与量不足による糖尿病性ケトアシドーシスの再燃",
+      "インスリン治療に伴うリンの細胞内シフトで生じた重症低リン血症（0.6 mg/dL）とATP枯渇による呼吸筋不全（急性呼吸性アシドーシス）",
+      "高クロール血症単独による直接的な神経筋遮断",
+      "急速な血糖低下に伴う浸透圧性脳浮腫と脳ヘルニア",
+      "カリウム過剰補正に伴う高カリウム性四肢麻痺"
+    ],
+    actionOptions: [
+      "インスリン持続静注速度の倍増と生理食塩水負荷の再開",
+      "リン酸ナトリウム（またはリン酸二水素カリウム）の経静脈的補充と人工呼吸（またはNPPV）による換気補助の実施",
+      "フロセミド静注によるクロールイオンの排泄促進",
+      "濃グリセリンおよびマンニトールの急速静注",
+      "経過観察のみによるリンの自然回復待機"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセスと電解質病態】<br>① pH 7.25、PaCO2 50 mmHgより急性呼吸性アシドーシスが出現。<br>② AG = 139 - (108 + 21.0) = 10.0 mEq/L（ケトーシスは消失しAG正常、生食負荷後の高Cl性NAGMAが残存）。<br>③ 突然の呼吸筋麻痺・CO2貯留の原因は血清リン（P）0.6 mg/dL（<1.0 mg/dLの重症低リン血症）です。インスリン治療によりPが細胞内へ急激に取り込まれ、ATP産生不全から横隔膜不全を起こしており、直ちにリン酸製剤の静脈内補充と換気補助を行います。"
+  },
+  {
+    id: 43,
+    level: "上級",
+    title: "No.43：DKA＋敗血症性ショックにおける気管挿管直後の心停止危機",
+    scenario: "52歳男性。重症DKAと肺炎で救急搬送。来院時、Kussmaul呼吸（呼吸数38回/分）でPaCO2を14 mmHgまで下げてpH 7.15を保っていた。不穏が強いためミダゾラムとロクロニウムで気管挿管し、人工呼吸器を「VCV：一回換気量450mL、呼吸回数12回/分」に設定した15分後、急激な血圧低下と徐脈が出現した。",
+    vitals: "BP 54/30 mmHg | HR 42 /min | RR 12 /min (調節換気) | SpO2 98% (FiO2 1.0)",
+    labs: {
+      pH: "6.81", PaCO2: "42", PaO2: "210", HCO3: "6.5", BE: "-26.8",
+      Na: "136", K: "6.8", Cl: "100", Lac: "8.2 mmol/L", Alb: "4.0", Glu: "680 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "PaCO2の正常範囲内（42 mmHg）維持による適切な人工呼吸管理状態",
+      "鎮静筋弛緩と不適切な低呼吸回数設定（12回/分）による呼吸性代償の喪失（PaCO2 14→42）と致死的アシデミア・高K血症の進行",
+      "陽圧換気による緊張性気胸の突発的合併",
+      "高濃度酸素投与に伴う吸収性無気肺と低酸素血症",
+      "ロクロニウムによるアナフィラキシーショック単独病態"
+    ],
+    actionOptions: [
+      "現在の人工呼吸器設定（呼吸回数12回/分）の維持と経過観察",
+      "人工呼吸器の呼吸回数増量（28〜30回/分等）による過換気代償の再構築、およびグルコン酸カルシウム・重炭酸ナトリウムの静注",
+      "PEEPの0 cmH2Oへの変更のみによる血圧回復待機",
+      "吸入酸素濃度（FiO2）の0.21への引き下げ",
+      "気管チューブの即時抜去と自発呼吸への復帰"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：重度代謝性アシドーシス患者の挿管ピットフォール】<br>① pH 6.81、HCO3- 6.5、AG = 136 - (100 + 6.5) = 29.5 mEq/L（AG開大）。補正HCO3- = 6.5 + 17.5 = 24.0 mmol/L。<br>② 挿管前はKussmaul呼吸でPaCO2を14 mmHgまで飛ばしてpH 7.15を維持していましたが、挿管後に「通常の呼吸回数12回/分」に設定したためPaCO2が42 mmHgへ急上昇し、pHが6.81へ暴落、急激な高K血症（6.8 mEq/L）と心停止寸前のショックに陥っています。直ちに人工呼吸器の換気回数を増やして代償性過換気を維持し、カルシウム・メイロン投与を行います。"
+  },
+  {
+    id: 44,
+    level: "上級",
+    title: "No.44：重症ARDS＋敗血症性ショック＋AKI＋胃管吸引（三重障害と肺保護換気）",
+    scenario: "64歳女性（身長154cm、予測体重47kg）。細菌性肺炎から重症ARDSおよび敗血症性ショック・急性腎障害（AKI）を併発し挿管管理中。胃管から多量の排液あり。人工呼吸器はVCV：FiO2 0.7、PEEP 12、一回換気量240mL（5mL/kg）、呼吸回数20回/分、プラトー圧29 cmH2O。",
+    vitals: "BP 92/54 (67) mmHg (ノルアドレナリン0.2γ) | HR 115 /min | RR 20 /min | SpO2 92%",
+    labs: {
+      pH: "7.18", PaCO2: "44", PaO2: "72", HCO3: "16.0", BE: "-11.8",
+      Na: "143", K: "4.9", Cl: "95", Lac: "8.5 mmol/L", Alb: "2.8", Cr: "2.7 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "生理食塩水過剰投与単独による高クロール性代謝性アシドーシス",
+      "敗血症・AKIによるAGMA、肺保護換気下の呼吸性アシドーシス、および胃管排液・低Albによる隠れた代謝性アルカローシスの三重障害",
+      "呼吸性代償が完全に達成された単純な乳酸アシドーシス",
+      "PEEP過量による死腔換気増大単独の呼吸性アシドーシス",
+      "カテコラミン誘発性の代謝性アルカローシス単一病態"
+    ],
+    actionOptions: [
+      "プラトー圧40 cmH2Oを許容した一回換気量450mL（10mL/kg）への増量",
+      "肺保護換気（一回換気量制限・プラトー圧≦30・pH>7.15でのPermissive hypercapnia）の維持と循環蘇生・感染源治療の継続",
+      "換気設定を変えない状態での8.4%炭酸水素ナトリウム250mL急速全開投与",
+      "PEEPの3 cmH2Oへの引き下げ",
+      "ノルアドレナリンの中止とフロセミド静注の開始"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：Respica掲載典型モデルの完全解析】<br>① pH 7.18、HCO3- 16.0、実測AG = 143 - (95 + 16) = 32.0 mEq/L（Alb補正AG = 35.0：AG開大）。<br>② 予測PaCO2 = 30.4 mmHgに対し実測44 mmHg（呼吸性アシドーシス合併）。<br>③ 補正HCO3- = 16.0 + (35.0 - 12) = 39.0 mmol/L（>26：隠れた代謝性アルカローシス合併）の三重障害です。<br>【臨床の鉄則】ARDSでは肺損傷（VALI）を防ぐためプラトー圧≦30 cmH2O・一回換気量制限を厳守し、pH>7.15であれば高CO2血症を許容しつつ循環改善を図ります。"
+  },
+  {
+    id: 45,
+    level: "上級",
+    title: "No.45：混合性アシドーシス（換気制限下）への重炭酸ナトリウム投与による逆説的悪化",
+    scenario: "78歳男性。敗血症性ショックと重症ARDSで人工呼吸管理中（制限換気下）。pH 7.13, PaCO2 46, HCO3- 15であったため、主治医が8.4%炭酸水素ナトリウム（メイロン）150mLを静注した。30分後に血圧がさらに低下した際の血液ガス。",
+    vitals: "BP 66/38 mmHg | HR 128 /min | RR 20 /min (調節換気) | SpO2 90% (FiO2 0.8)",
+    labs: {
+      pH: "7.05", PaCO2: "62", PaO2: "68", HCO3: "16.5", BE: "-13.8",
+      Na: "150", K: "5.2", Cl: "103", Lac: "9.2 mmol/L", "イオン化Ca2+": "0.86 mmol/L（低下）"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "重炭酸ナトリウム投与量不足による代謝性アシドーシスの自然進行",
+      "換気制限下での重炭酸投与によるCO2蓄積（PaCO2 46→62）・逆説的細胞内アシドーシス・イオン化Ca低下・高Na血症の合併",
+      "高ナトリウム血症単独による心収縮力の増強",
+      "人工呼吸器回路リークによる低換気",
+      "重炭酸投与によるアニオンギャップの完全正常化"
+    ],
+    actionOptions: [
+      "8.4%炭酸水素ナトリウム（メイロン）200mLのさらなる追加急速静注",
+      "メイロン投与の中止、カルシウム補正による心収縮力維持、および持続的腎代替療法（CRRT）導入による酸塩基・電解質管理",
+      "蒸留水の末梢静脈内直接注入",
+      "人工呼吸器からの離脱とバッグバルブマスクによる毎分60回換気",
+      "アセタゾラミド静注による重炭酸排泄の促進"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：メイロン投与による逆説的細胞内アシドーシス】<br>換気が制限されたARDS患者にメイロンを急速投与すると、HCO3-がH+と反応して大量のCO2を発生し、排泄できずにPaCO2が46 → 62 mmHgへ急上昇、pHは7.13 → 7.05へと逆に悪化しました（pH = 6.1 + log10[16.5/(0.03×62)] = 7.05）。CO2が細胞内へ流入して逆説的細胞内アシドーシスを起こし、重炭酸負荷に伴うイオン化Ca低下（0.86 mmol/L）も加わって心収縮力を著しく低下させています。"
+  },
+  {
+    id: 46,
+    level: "上級",
+    title: "No.46：敗血症＋AKIステージ3に対するBICAR-ICU基準に基づくメイロン適応判断",
+    scenario: "68歳男性。腹膜炎術後の敗血症性ショックおよび急性腎障害（AKIN stage 3：乏尿）。気管挿管下で人工呼吸管理されているが、ノルアドレナリン高用量でも血圧維持に難渋している。",
+    vitals: "BP 80/44 mmHg | HR 116 /min | RR 26 /min (人工呼吸管理中) | SpO2 97% (FiO2 0.4)",
+    labs: {
+      pH: "7.13", PaCO2: "32", PaO2: "110", HCO3: "10.2", BE: "-17.8",
+      Na: "138", K: "5.9", Cl: "106", Lac: "6.4 mmol/L", Alb: "4.0", Cr: "3.8 mg/dL", "イオン化Ca2+": "1.12 mmol/L"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "換気不全を主因とする純粋な急性呼吸性アシドーシス",
+      "敗血症性ショックと重度AKI（Stage 3）に伴う高度代謝性アシドーシス（pH ≦ 7.15）および高カリウム血症",
+      "生理食塩水投与のみによる軽度の高クロール性アシドーシス",
+      "アルブミン高値に伴う偽性アニオンギャップ開大",
+      "過換気による原発性呼吸性アルカローシス"
+    ],
+    actionOptions: [
+      "アルカリ剤や腎代替療法を一切行わない経過観察の継続",
+      "十分な換気確保下での計画的な炭酸水素ナトリウム投与（pH>7.30目標：BICAR-ICU基準）または持続的腎代替療法（CRRT）の導入",
+      "人工呼吸器の換気回数を10回/分に減らしたうえでのメイロン急速投与",
+      "塩化カリウム（KCl）製剤の追加点滴",
+      "3%高張食塩水の急速静脈内投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセスと最新エビデンス（BICAR-ICU試験）】<br>① pH 7.13、HCO3- 10.2、AG = 138 - (106 + 10.2) = 21.8 mEq/L（AG開大）。補正HCO3- = 10.2 + 9.8 = 20.0 mmol/L（<22：腎尿細管障害によるNAGMAも合併）。<br>② 予測PaCO2 = 23.4 mmHgに対し実測32 mmHgであり呼吸性代償も限界に達しています。<br>③ BICAR-ICU試験では、AKIN score 2〜3のAKIを合併した重症アシデミア（pH≦7.20）の患者群において、十分な換気確保のもとpH 7.30以上を目標に炭酸水素ナトリウムを投与することで28日死亡率とRRT導入率が有意に低下しました。"
+  },
+  {
+    id: 47,
+    level: "上級",
+    title: "No.47：サリチル酸（アスピリン）中毒による古典的混合障害",
+    scenario: "26歳女性。市販の解熱鎮痛薬（アスピリン製剤）を大量服薬して8時間後に救急搬送。耳鳴、嘔気・嘔吐、発汗および著明な過換気を認める。",
+    vitals: "BP 116/68 mmHg | HR 114 /min | RR 34 /min | SpO2 100% (room air) | BT 38.2℃",
+    labs: {
+      pH: "7.45", PaCO2: "16", PaO2: "120", HCO3: "10.8", BE: "-10.8",
+      Na: "140", K: "3.5", Cl: "104", Lac: "4.2 mmol/L", Alb: "4.0", Glu: "78 mg/dL"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH正常域（7.41〜7.45）＋アルカリ側シフト：呼吸性アルカローシス優位",
+    step3: "AG開大",
+    step4: "代償範囲外：代謝性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "pH 7.45に基づく酸塩基平衡異常なしの軽症薬物摂取",
+      "サリチル酸の延髄呼吸中枢直接刺激による呼吸性アルカローシスと、酸化的リン酸化脱共役によるAGMA（乳酸・ケト酸等）の混合障害",
+      "パニック発作に伴う純粋な心因性過換気症候群",
+      "腎不全に伴う高クロール性代謝性アシドーシス",
+      "嘔吐単独による代謝性アルカローシス"
+    ],
+    actionOptions: [
+      "活性炭の単回投与のみによる自宅への帰宅指示",
+      "重炭酸ナトリウム投与による血液・尿のアルカリ化（サリチル酸の脳移行阻止・尿中排泄促進）、ブドウ糖・K補充、および血液透析の検討",
+      "ジアゼパム静注による呼吸回数12回/分への抑制",
+      "塩化アンモニウム投与による尿の酸性化",
+      "ブドウ糖を含まない生理食塩水単独の維持輸液"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：サリチル酸中毒の二大病態】<br>① pH 7.45（基準範囲上限・アルカリ側シフト）、PaCO2 16 mmHg、HCO3- 10.8 mmol/L、AG = 140 - (104 + 10.8) = 25.2 mEq/L（AG開大）。<br>② 急性呼吸性アルカローシスの代償予測（HCO3- = 24 - 0.2×24 = 19.2）より実測HCO3-（10.8）が著しく低く、サリチル酸による「呼吸中枢直接刺激（呼吸性アルカローシス）」と「酸化的リン酸化の脱共役（AGMA）」の混合障害です。補正HCO3- = 10.8 + 13.2 = 24.0 mmol/L。<br>【臨床の鉄則】血液pHが低下するとサリチル酸が脳内へ移行し致死的となるため呼吸抑制は厳禁です。重炭酸ナトリウムで血液と尿をアルカリ化して排泄を促進します。"
+  },
+  {
+    id: 48,
+    level: "上級",
+    title: "No.48：サリチル酸中毒＋頻回嘔吐＋有機酸尿排泄による複雑混合障害",
+    scenario: "40歳男性。アスピリン大量内服後12時間経過。来院前に10回以上の激しい嘔吐を繰り返していた。耳鳴と錯乱状態を認める。",
+    vitals: "BP 104/60 mmHg | HR 120 /min | RR 32 /min | SpO2 99% (room air) | BT 38.6℃",
+    labs: {
+      pH: "7.54", PaCO2: "18", PaO2: "115", HCO3: "15.0", BE: "-5.2",
+      Na: "141", K: "2.9", Cl: "98", Lac: "3.8 mmol/L", Alb: "4.0", "ケトン体": "陽性"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG開大",
+    step4: "代償範囲外：代謝性アシドーシスの合併",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "嘔吐による脱水単独の代謝性アルカローシス",
+      "サリチル酸中毒の呼吸性アルカローシス＋AGMAに、頻回嘔吐による代謝性アルカローシスと低K血症が重なった三重障害",
+      "過換気症候群による単純な急性呼吸性アルカローシス",
+      "急性肝不全による高アンモニア性脳症と呼吸性アルカローシス",
+      "糖尿病性ケトアシドーシス単独病態"
+    ],
+    actionOptions: [
+      "カリウム補充や血液浄化を行わない生理食塩水単独点滴",
+      "塩化カリウム（KCl）の強力な補充による逆説的酸性尿の解除、ブドウ糖・輸液管理、および錯乱（中枢神経症状）に対する緊急血液透析の実施",
+      "アセタゾラミド（ダイアモックス）静注による重炭酸排泄の促進",
+      "気管挿管および筋弛緩薬投与による低換気管理",
+      "経過観察のみによる自然排泄の待機"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス】<br>① pH 7.54（アルカレミア）、PaCO2 18（呼吸性アルカローシス）。急性代償予測HCO3- = 19.6 mmol/Lに対し実測15.0 mmol/Lと低く代謝性アシドーシスが合併。<br>② AG = 141 - (98 + 15.0) = 28.0 mEq/L（ΔAG = 16.0：AG開大）。<br>③ 補正HCO3- = 15.0 + 16.0 = 31.0 mmol/L（>26）より、サリチル酸の「呼吸性アルカローシス＋AGMA」に嘔吐の「代謝性アルカローシス」が加わった三重障害です。<br>【電解質の鉄則】低K血症（2.9）を放置すると腎がK+を再吸収してH+を尿へ捨てるため尿をアルカリ化できません。強力なK補充と緊急血液透析が必要です。"
+  },
+  {
+    id: 49,
+    level: "上級",
+    title: "No.49：工業用アルコール（メタノール）服薬後の過換気と視覚障害",
+    scenario: "23歳女性。自殺企図で工業用アルコールを飲用し、数時間後から激しい悪心と呼吸困難、および「視界が吹雪のように白い」と訴えて救急要請。既往に過換気症候群あり。",
+    vitals: "BP 102/50 mmHg | HR 112 /min | RR 38 /min | SpO2 100% (room air) | 対光反射減弱",
+    labs: {
+      pH: "7.51", PaCO2: "18", PaO2: "116", HCO3: "14.0", BE: "-6.8",
+      Na: "136", K: "4.4", Cl: "100", Lac: "1.8 mmol/L", Alb: "4.0", BUN: "14 mg/dL", Glu: "90 mg/dL", "実測血漿浸透圧": "325 mOsm/kg"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "呼吸性アルカローシス",
+    step3: "AG開大",
+    step4: "代償範囲外：代謝性アシドーシスの合併",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "既往歴およびアルカレミアに基づく単純な過換気症候群",
+      "過換気（呼吸性アルカローシス）の背後に、メタノール中毒（ギ酸形成）によるAGMAと浸透圧ギャップ著明開大が潜む混合障害",
+      "乳酸値正常に基づく中毒性疾患の完全否定状態",
+      "エタノール単独摂取による軽度の脱水",
+      "特発性視神経炎に伴う心因性過換気"
+    ],
+    actionOptions: [
+      "過換気症候群としての鎮静薬投与と帰宅指示",
+      "ホメピゾール（アルコール脱水素酵素阻害薬）の即時投与、重炭酸・葉酸投与、および緊急血液透析によるメタノール・ギ酸除去の実施",
+      "維持輸液のみによる自然代謝の待機",
+      "ペーパーバッグ法による二酸化炭素の再吸入",
+      "眼科外来への翌日紹介とステロイド点眼の処方"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：Respica掲載「本当に過換気？」モデルの完全解析】<br>① 一見するとpH 7.51、PaCO2 18で過換気症候群に見えますが、急性呼吸性アルカローシスの代償予測（HCO3- = 24 - 0.2×22 = 19.6）より実測HCO3-（14.0）が著しく低下しています。<br>② AG = 136 - (100 + 14.0) = 22.0 mEq/L（AG開大）。補正HCO3- = 14.0 + 10.0 = 24.0 mmol/L。<br>③ 計算浸透圧 = 2×136 + 90/18 + 14/2.8 = 282、浸透圧ギャップ（OG）= 325 - 282 = 43 mOsm/kg（著明開大）！<br>メタノール中毒（ギ酸による視神経障害とAGMA）であり、直ちにホメピゾール投与と緊急血液透析を行います。"
+  },
+  {
+    id: 50,
+    level: "上級",
+    title: "No.50：アルコール性ケトアシドーシス（AKA）＋頻回嘔吐＋離脱過換気（三重障害）",
+    scenario: "51歳男性。大酒家。1週間連続で飲酒した後に激しい腹痛と頻回の嘔吐が出現し、2日前から飲酒も食事もできなくなった。振戦と興奮、荒い呼吸を呈して救急搬送。",
+    vitals: "BP 108/64 mmHg | HR 122 /min | RR 30 /min | SpO2 98% (room air) | 手指振戦著明",
+    labs: {
+      pH: "7.38", PaCO2: "26", PaO2: "102", HCO3: "15.0", BE: "-7.2",
+      Na: "138", K: "3.1", Cl: "92", Lac: "3.5 mmol/L", Alb: "4.0", Glu: "68 mg/dL", "尿ケトン定性": "± (血清β-OHB 6.8 mmol/L)"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH正常域（7.35〜7.39）＋酸性側シフト：代謝性アシドーシス優位",
+    step3: "AG開大",
+    step4: "代償超過：呼吸性アルカローシスの合併",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "pH基準範囲内および尿ケトン定性（±）に基づく軽症のアルコール離脱症候群",
+      "アルコール性ケトアシドーシス（AKA）・乳酸による高度AGMAと、嘔吐の代謝性アルカローシス・離脱過換気（呼吸性アルカローシス）が拮抗した三重障害",
+      "1型糖尿病性ケトアシドーシス単独病態",
+      "急性膵炎に伴う高クロール性代謝性アシドーシス",
+      "肝硬変に伴う純粋な呼吸性アルカローシス"
+    ],
+    actionOptions: [
+      "生理食塩水500mLのみの点滴と帰宅指示",
+      "ウェルニッケ脳症予防のためのビタミンB1（チアミン）静注の先行・同時実施と、ブドウ糖および電解質（K・Mg・P）含有細胞外液の十分な投与",
+      "ブドウ糖を投与しない状態での高用量インスリン持続静注の開始",
+      "高濃度ブドウ糖液の単独先行投与（ビタミンB1は数日後に投与）",
+      "炭酸水素ナトリウムの大量静注"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：AKAの三重障害と尿ケトン偽陰性の罠】<br>① pH 7.38（正常域だが酸性側シフト）であり、AG = 138 - (92 + 15.0) = 31.0 mEq/L（ΔAG = 19.0：AG開大）と猛烈に開大しています。<br>② 補正HCO3- = 15.0 + 19.0 = 34.0 mmol/L（>26：嘔吐による代謝性アルカローシス合併）、さらにPaCO2 26（予測29.2より低い：呼吸性アルカローシス合併）の三重障害です。<br>③ AKAではケトン体がβ-ヒドロキシ酪酸に偏るため尿試験紙（アセト酢酸のみ反応）は偽陰性になります。必ずビタミンB1を先行投与したうえでブドウ糖と電解質（K・Mg・P）を補充します。"
+  },
+  {
+    id: 51,
+    level: "上級",
+    title: "No.51：AKA＋メトホルミン・SGLT2阻害薬内服中の極度アシデミア（簡易Stewart解析）",
+    scenario: "48歳男性。アルコール使用障害、2型糖尿病（メトホルミン・SGLT2阻害薬内服中）。多量飲酒後に急性上腹部痛と頻回嘔吐が出現し救急搬送。",
+    vitals: "BP 106/62 mmHg | HR 118 /min | RR 32 /min | SpO2 99% (room air) | 意識清明",
+    labs: {
+      pH: "6.90", PaCO2: "17", PaO2: "112", HCO3: "3.2", BE: "-27.0",
+      Na: "144", K: "4.8", Cl: "94", Lac: "18.0 mmol/L", Alb: "4.2", Glu: "142 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "広範腸管壊死単独によるA型乳酸アシドーシス",
+      "MALA（メトホルミン関連乳酸アシドーシス）・AKA・euDKAによる極度AGMAと、嘔吐による低Cl性代謝性アルカローシスの合併",
+      "クロール値94 mEq/Lに基づく代謝性アルカローシス成分の完全否定状態",
+      "血糖値142 mg/dLに基づくケトアシドーシス成分の完全否定状態",
+      "過換気症候群による呼吸性アルカローシス"
+    ],
+    actionOptions: [
+      "腹部CT所見にかかわらず直ちに行う緊急全小腸切除術",
+      "被疑薬中止、ビタミンB1・ブドウ糖・インスリン・細胞外液投与、および高度アシデミア・メトホルミン除去に対する血液浄化療法（血液透析/CRRT）の実施",
+      "経過観察のみによる乳酸の自然代謝待機",
+      "鎮静薬投与による呼吸回数の抑制",
+      "0.9%生理食塩水単独での経過観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：INTENSIVIST掲載モデルのBoston法＋簡易Stewart法解析】<br>① pH 6.90、HCO3- 3.2、AG = 144 - (94 + 3.2) = 46.8 mEq/L（ΔAG = 34.8：AG開大）。予測PaCO2 = 40 - 1.2 × (24 - 3.2) = 15.0 mmHg（実測17 mmHgで代償限界まで過換気）。<br>② 補正HCO3- = 3.2 + 34.8 = 38.0 mmol/L（>26：嘔吐による高度な代謝性アルカローシス合併）。<br>③ 簡易Stewart法で見ると、Na-Cl較差（+15）のアルカローシス効果に対し、乳酸（-17）とケト酸（-24）が大量蓄積していることが定量的にわかります。"
+  },
+  {
+    id: 52,
+    level: "上級",
+    title: "No.52：アルコール性肝硬変のショック蘇生後（低Alb血症が隠すAGMAと高Cl血症）",
+    scenario: "65歳男性。アルコール性肝硬変（Child-Pugh C）。吐血とショックで搬送され、内視鏡的止血と0.9%生理食塩水3,000mL・赤血球輸血が施行された後のICU入室時血液ガス。",
+    vitals: "BP 94/52 mmHg | HR 105 /min | RR 20 /min | SpO2 97% (O2 3L) | 腹水貯留著明",
+    labs: {
+      pH: "7.22", PaCO2: "38", PaO2: "92", HCO3: "15.0", BE: "-11.5",
+      Na: "130", K: "4.2", Cl: "104", Lac: "5.2 mmol/L", Alb: "1.6"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "実測AG正常域に基づく不揮発性酸蓄積の完全否定状態",
+      "重度低Alb血症（1.6 g/dL）にマスクされた乳酸アシドーシス（補正AG開大）、生食負荷による高Cl性アシドーシス、および腹水による呼吸性代償不全の合併",
+      "低アルブミン血症自体が引き起こす直接的な代謝性アシドーシス",
+      "大量輸血に伴うクエン酸アルカローシス単独病態",
+      "過換気による呼吸性アルカローシス"
+    ],
+    actionOptions: [
+      "0.9%生理食塩水3,000mLのさらなる急速追加投与",
+      "生理食塩水からBalanced crystalloid・アルブミン製剤への変更、循環動態と酸素運搬量の最適化、および腹水・呼吸状態の管理",
+      "アルブミン製剤投与の絶対的禁忌としての回避",
+      "利尿薬大量静注による急速除水",
+      "アセタゾラミド投与によるアルカリ排泄"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：低アルブミン血症によるAGマスクと簡易Stewart法】<br>① 実測AG = 130 - (104 + 15.0) = 11.0 mEq/Lと一見正常（10〜14）ですが、Alb 1.6 g/dL（<4.0）のため補正AG = 11.0 + 2.5 × (4.0 - 1.6) = 17.0 mEq/L（>14：AG開大！）となり、乳酸（5.2 mmol/L）の蓄積が判明します。<br>② 補正HCO3- = 15.0 + (17.0 - 12) = 20.0 mmol/L（<22）であり、生食大量負荷による高Cl性アシドーシス（Na-Cl-35 = -9）も合併しています。<br>③ 予測PaCO2 = 29.2 mmHgに対し実測38 mmHgであり、大量腹水による換気制限（呼吸性アシドーシス）も合併した三重アシドーシスです。"
+  },
+  {
+    id: 53,
+    level: "上級",
+    title: "No.53：重症熱中症＋激しい嘔吐（見かけ上正常なpH/HCO3-に隠れた高度AGMA）",
+    scenario: "42歳男性。猛暑日の屋外作業中に倒れ救急搬送。搬送前に複数回激しく嘔吐していた。意識JCS II-10、全身の発汗停止と皮膚乾燥を認める。",
+    vitals: "BP 96/58 mmHg | HR 128 /min | RR 22 /min | SpO2 94% (room air) | 深部体温 40.2℃",
+    labs: {
+      pH: "7.37", PaCO2: "41", PaO2: "64", HCO3: "22.8", BE: "-1.8",
+      Na: "138", K: "3.3", Cl: "95", Lac: "7.1 mmol/L", Alb: "4.0", Cr: "1.9 mg/dL", CK: "4,800 U/L"
+    },
+    step1: "基準範囲内（pH 7.35〜7.45）",
+    step2: "pH 7.40前後（完全拮抗）：アシドーシスとアルカローシスの相殺型混合障害",
+    step3: "AG開大",
+    step4: "見かけ上正常（強いアシドーシスと強いアルカローシスの拮抗・相殺）",
+    step5: "隠れた代謝性アルカローシスの合併（補正HCO3- > 26）",
+    causeOptions: [
+      "pH・PaCO2・HCO3-がすべて基準範囲内であることに基づく酸塩基平衡異常なしのI度熱中症",
+      "重症熱中症・高度脱水による強い乳酸アシドーシス（AGMA）と頻回嘔吐による強い代謝性アルカローシスが相殺し合った隠蔽型混合障害",
+      "中枢性過換気による呼吸性アルカローシス単独病態",
+      "横紋筋融解症に伴う高カリウム性アシドーシス単一病態",
+      "慢性呼吸不全の急性増悪"
+    ],
+    actionOptions: [
+      "経口補水液の飲用指導のみによる帰宅指示",
+      "直ちに行う積極的全身冷却（蒸散冷却・冷却輸液等）と、大量の細胞外液輸液・電解質管理による循環および臓器灌流の回復",
+      "塩化アンモニウム投与によるアルカローシスの中和",
+      "NSAIDs（非ステロイド性抗炎症薬）静注のみによる解熱処置",
+      "水分制限と経過観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：Respica掲載「一見正常に見える重症熱中症」の完全解析】<br>① pH 7.37、PaCO2 41、HCO3- 22.8と一見正常ですが、全例ルーチンで計算する実測AG = 138 - (95 + 22.8) = 20.2 mEq/L（AG開大！ Lac 7.1）です。<br>② 補正HCO3- = 22.8 + (20.2 - 12) = 31.0 mmol/L（>26）！<br>熱中症の循環不全による「強い乳酸アシドーシス」と、激しい嘔吐による「強い代謝性アルカローシス」が綱引きをして見かけ上pHとHCO3-を正常化させています。直ちに全身冷却と急速輸液を開始します。"
+  },
+  {
+    id: 54,
+    level: "上級",
+    title: "No.54：壊死性軟部組織感染症を契機とした重症DKA（pH 6.87の極限病態）",
+    scenario: "59歳男性。糖尿病の未治療歴あり。右臀部〜大腿の発赤・腫脹・激痛と意識障害で救急搬送。来院時ショック状態。",
+    vitals: "BP 72/40 mmHg | HR 125 /min | RR 28 /min | SpO2 92% (room air) | BT 38.5℃",
+    labs: {
+      pH: "6.87", PaCO2: "32", PaO2: "60", HCO3: "5.6", BE: "-27.5",
+      Na: "135", K: "6.3", Cl: "111", Lac: "1.6 mmol/L", Alb: "4.0", Glu: "620 mg/dL", "尿ケトン": "3+"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "代償不全：呼吸性アシドーシスの合併",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "敗血症性ショックに伴うA型乳酸アシドーシス単独病態",
+      "軟部組織感染症を契機とした重症DKA（AGMA）＋高Cl性NAGMA＋呼吸性代償不全の三重アシドーシス",
+      "十分な呼吸性代償が完了した単純な代謝性アシドーシス",
+      "高カリウム血症に伴う4型尿細管性アシドーシス単独病態",
+      "肺血栓塞栓症による急性呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "インスリンを使用しない抗菌薬と昇圧薬のみの投与",
+      "大量の細胞外液輸液・インスリン持続静注・高K対策・確実な気道呼吸管理（換気補助）の実施、および広域抗菌薬投与と緊急外科的デブリードマン",
+      "酸素マスク装着のみによる一般病棟での経過観察",
+      "カリウム値6.3 mEq/Lを理由としたインスリン投与の差し控え",
+      "局所抗菌薬軟膏の塗布と外来通院指示"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：Respica掲載case1モデルの完全解析】<br>① pH 6.87、HCO3- 5.6、AG = 135 - (111 + 5.6) = 18.4 mEq/L（AG開大）。乳酸は1.6と正常であり、AG開大の主因は感染症を契機としたDKAです。<br>② 予測PaCO2 = 40 - 1.2 × (24 - 5.6) = 17.9 mmHgに対し実測32 mmHg（呼吸性アシドーシス合併）。<br>③ 補正HCO3- = 5.6 + (18.4 - 12) = 12.0 mmol/L（<22：高Cl性NAGMAも合併）の三重アシドーシスです。"
+  },
+  {
+    id: 55,
+    level: "上級",
+    title: "No.55：不凍液（エチレングリコール）中毒における「偽性高乳酸血症」と低Ca血症",
+    scenario: "44歳男性。ガレージ内で意識障害で倒れているところを発見され搬送。近くに不凍液の容器があった。血液ガス分析装置では「Lac 16.5 mmol/L」と異常高値が表示されたが、循環動態は保たれており皮膚も温かい。",
+    vitals: "BP 134/82 mmHg | HR 96 /min | RR 28 /min | SpO2 99% (room air) | 尿沈渣：シュウ酸カルシウム結晶多数",
+    labs: {
+      pH: "7.09", PaCO2: "20", PaO2: "110", HCO3: "5.8", BE: "-23.5",
+      Na: "142", K: "5.4", Cl: "102", "血ガスLac": "16.5 mmol/L (中検酵素法Lac 1.8)", "イオン化Ca2+": "0.82 mmol/L", "浸透圧ギャップ": "+28 mOsm/kg"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "非閉塞性腸管虚血（NOMI）による真の重症L-乳酸アシドーシス",
+      "エチレングリコール中毒（グリコール酸による血ガス電極の偽性高乳酸表示＝Lactate gap・AGMA）およびシュウ酸カルシウム形成による低Ca血症・腎障害",
+      "エタノール急性中毒による単純な浸透圧ギャップ開大",
+      "糖尿病性ケトアシドーシスと副甲状腺機能低下症の合併",
+      "サリチル酸中毒による混合性酸塩基平衡異常"
+    ],
+    actionOptions: [
+      "緊急開腹術による全小腸切除の実施",
+      "ホメピゾール（アルコール脱水素酵素阻害薬）の即時投与、重炭酸・カルシウム補正、および緊急血液透析によるエチレングリコール・代謝産物の除去",
+      "マンニトール急速静注による浸透圧利尿の試行",
+      "低カルシウム血症を放置した状態での経過観察",
+      "維持輸液のみによる自然排泄の待機"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセスと検査ピットフォール：エチレングリコール中毒の偽性乳酸高値】<br>① pH 7.09、HCO3- 5.8、AG = 34.2 mEq/L（AG開大）、予測PaCO2 = 18.2 mmHg（実測20 mmHgで適切な呼吸代償）、浸透圧ギャップ+28。<br>② エチレングリコールの代謝産物である「グリコール酸」は化学構造がL-乳酸と酷似しているため、血液ガス分析機の酵素電極と交差反応して「偽性高乳酸血症（16.5 mmol/L）」を表示します（中央検査室の実測L-乳酸1.8との差＝Lactate gap）。さらに最終代謝産物のシュウ酸が血中Ca2+をキレートして重篤なイオン化Ca低下（0.82 mmol/L）と急性腎障害を引き起こします。"
+  },
+  {
+    id: 56,
+    level: "上級",
+    title: "No.56：短腸症候群患者における炭水化物大量摂取後のD-乳酸アシドーシス",
+    scenario: "50歳男性。上腸間膜動脈血栓症による広範小腸切除後（短腸症候群）で外来通院中。昨日、うどんや甘い菓子パンを大量に食べた後から、呂律難・千鳥足（運動失調）・意識混濁が出現し救急搬送。アルコール摂取はない。",
+    vitals: "BP 120/74 mmHg | HR 88 /min | RR 26 /min | SpO2 99% (room air) | 小脳失調・構音障害あり",
+    labs: {
+      pH: "7.22", PaCO2: "24", PaO2: "104", HCO3: "9.5", BE: "-16.8",
+      Na: "140", K: "3.9", Cl: "108", "L-Lac": "1.1 mmol/L", Alb: "4.0", Glu: "112 mg/dL", "ケトン体": "陰性"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "隠れた非AG開大型代謝性アシドーシス（NAGMA）の合併（補正HCO3- < 22）",
+    causeOptions: [
+      "脳底動脈閉塞による小脳・脳幹梗塞と呼吸不全",
+      "短腸症候群での糖質大量流入・腸内細菌異常発酵によるD-乳酸アシドーシス（通常のL-乳酸測定では検出されないAGMA＋NAGMAと中枢神経症状）",
+      "L-乳酸およびケトン体陰性に基づくアニオンギャップ正常状態",
+      "下痢単独による純粋な高クロール性代謝性アシドーシス",
+      "ウェルニッケ脳症単独によるA型乳酸アシドーシス"
+    ],
+    actionOptions: [
+      "アルテプラーゼ（t-PA）静注による血栓溶解療法の実施",
+      "経口炭水化物摂取の制限、細胞外液および重炭酸ナトリウムによるアシドーシス補正、および難吸収性抗菌薬（バンコマイシンやメトロニダゾール等）の投与",
+      "高濃度ブドウ糖含有輸液と経腸栄養の倍増",
+      "抗不安薬の投与と精神科コンサルト",
+      "無処置での自宅経過観察"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：INTENSIVIST掲載 D-乳酸アシドーシスの病態】<br>① pH 7.22、HCO3- 9.5、AG = 140 - (108 + 9.5) = 22.5 mEq/L（AG開大！ ΔAG = 10.5）。予測PaCO2 = 22.6 mmHg（実測24 mmHg）。<br>② 補正HCO3- = 9.5 + 10.5 = 20.0 mmol/L（<22：尿中へのD-乳酸塩排泄・下痢に伴うNAGMAも合併）。<br>③ 短腸症候群で大量の糖質が結腸へ流入すると腸内細菌が「D-乳酸」を産生し、中枢神経毒性（構音障害・運動失調）とAGMA＋NAGMAを引き起こします（通常のL-乳酸電極では測定されません）。"
+  },
+  {
+    id: 57,
+    level: "上級",
+    title: "No.57：アセトアミノフェン長期内服＋低栄養によるピログルタミン酸（5-オキソプロリン）アシドーシス",
+    scenario: "74歳女性。転移性骨腫瘍の疼痛に対し、数ヶ月間アセトアミノフェン（3,000mg/日）を連日内服しており、食欲不振でるい痩が著しい。昨日から呼吸が荒くなり傾眠傾向となって搬送。肝酵素の上昇やショック所見はない。",
+    vitals: "BP 114/66 mmHg | HR 92 /min | RR 28 /min | SpO2 99% (room air) | BMI 15.8",
+    labs: {
+      pH: "7.16", PaCO2: "18", PaO2: "112", HCO3: "6.2", BE: "-21.2",
+      Na: "141", K: "3.7", Cl: "105", Lac: "1.4 mmol/L", Alb: "4.0", AST: "28 U/L", ALT: "24 U/L", "血清ケトン": "0.4 mmol/L (正常)", Cr: "0.9 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "肝酵素正常に基づく薬剤性アシドーシスの完全否定状態",
+      "アセトアミノフェン長期内服と低栄養・グルタチオン枯渇に伴う5-オキソプロリン（ピログルタミン酸）アシドーシス（GOLD MARKのO）",
+      "検体測定器の故障による偽性アニオンギャップ開大",
+      "心因性過換気症候群による原発性呼吸性アルカローシス",
+      "飢餓単独による重症ケトアシドーシス"
+    ],
+    actionOptions: [
+      "疼痛管理強化を目的としたアセトアミノフェン内服量の増量",
+      "アセトアミノフェンの即時中止、重炭酸補充・栄養管理、およびグルタチオン前駆体（N-アセチルシステイン）投与の検討",
+      "無処置での経過観察",
+      "鎮静薬投与による過換気の抑制",
+      "5-オキソプロリナーゼ阻害作用をもつ抗菌薬（flucloxacillin）の追加投与"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：INTENSIVIST掲載 5-オキソプロリン（ピログルタミン酸）アシドーシス】<br>① pH 7.16、HCO3- 6.2、PaCO2 18（予測18.6で適切な呼吸代償）、AG = 141 - (105 + 6.2) = 29.8 mEq/L（AG開大）。補正HCO3- = 6.2 + 17.8 = 24.0 mmol/L。<br>② 乳酸・ケトン・腎機能・肝酵素はすべて正常ですが、低栄養の高齢女性がアセトアミノフェンを長期連用すると細胞内グルタチオンが枯渇し、γ-グルタミル回路の負のフィードバックが外れて有機酸である「5-オキソプロリン（ピログルタミン酸）」が蓄積し高度AGMAをきたします。"
+  },
+  {
+    id: 58,
+    level: "上級",
+    title: "No.58：乳癌骨転移へのビスホスホネート長期投与による薬剤性Fanconi症候群（2型RTA）",
+    scenario: "54歳女性。乳癌多発骨転移に対し化学療法およびゾレドロン酸（ビスホスホネート製剤）を2年間継続投与中。数日前から四肢の強い脱力感が出現し歩行困難となり受診。下痢はなく、血糖値は102 mg/dLと正常。",
+    vitals: "BP 118/72 mmHg | HR 80 /min | RR 20 /min | SpO2 99% (room air) | 四肢筋力 MMT 2/5",
+    labs: {
+      pH: "7.34", PaCO2: "31", PaO2: "100", HCO3: "16.0", BE: "-8.5",
+      Na: "143", K: "1.6", Cl: "118", "血清P": "1.2 mg/dL", "尿酸": "1.2 mg/dL", Alb: "3.2", "尿糖": "3+ (血糖102)", "尿AG": "+14 mEq/L"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG正常",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "高Cl性（NAGMA）とK変動を伴う単一障害",
+    causeOptions: [
+      "尿糖陽性（3+）に基づく新規発症の重症糖尿病性ケトアシドーシス",
+      "ゾレドロン酸による全般性近位尿細管障害（薬剤性Fanconi症候群＋2型RTA：腎性糖尿・低P・低尿酸・重度低K・高Cl性NAGMA）",
+      "骨転移進行に伴う高カルシウム血症性アルカローシス",
+      "嘔吐による低クロール性代謝性アルカローシス",
+      "アルドステロン拮抗薬による4型尿細管性アシドーシス"
+    ],
+    actionOptions: [
+      "速効型インスリン持続静注の即時開始",
+      "被疑薬（ゾレドロン酸）の中止と、重度低カリウム血症（1.6 mEq/L）・低リン血症の積極的補正および重炭酸ナトリウムの補充",
+      "カリウム補充を行わない状態での8.4%炭酸水素ナトリウム単独急速静注",
+      "ループ利尿薬投与によるクロール排泄の促進",
+      "緊急副甲状腺摘出術の実施"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：INTENSIVIST掲載 薬剤性Fanconi症候群の完全解析】<br>① pH 7.34、HCO3- 16.0、PaCO2 31（予測PaCO2 = 30.4 mmHg）。実測AG = 143 - (118 + 16.0) = 9.0（Alb補正AG = 11.0：AG正常）の「高Cl性代謝性アシドーシス（NAGMA）」です。<br>② 血糖102と正常なのに尿糖3+（腎性糖尿）、さらに低リン血症（1.2）、低尿酸血症（1.2）、重度低K血症（1.6）を認めることから、ゾレドロン酸による近位尿細管全般の再吸収障害（Fanconi症候群＋2型RTA）と診断できます。"
+  },
+  {
+    id: 59,
+    level: "上級",
+    title: "No.59：COPDのCO2ナルコーシスに対する急激な機械換気補正（Post-hypercapnic alkalosis）",
+    scenario: "80歳男性。在宅酸素療法中の重症COPD。肺炎を契機にCO2ナルコーシス（pH 7.18, PaCO2 88 mmHg, HCO3- 34 mmol/L）となり緊急気管挿管。人工呼吸器で分時換気量を大きく設定して1時間後、PaCO2は36 mmHgまで急速に正常化したが、血圧低下と全身の間代性痙攣が出現した。",
+    vitals: "BP 82/46 mmHg | HR 118 /min | RR 24 /min (調節換気) | SpO2 98% (FiO2 0.3) | 全身痙攣出現",
+    labs: {
+      pH: "7.59", PaCO2: "36", PaO2: "88", HCO3: "33.0", BE: "+10.5",
+      Na: "138", K: "2.9", Cl: "93", "イオン化Ca2+": "0.80 mmol/L", Lac: "2.2 mmol/L"
+    },
+    step1: "アルカレミア（pH > 7.45）",
+    step2: "代謝性アルカローシス",
+    step3: "AG正常",
+    step4: "代償超過：呼吸性アルカローシスの合併",
+    step5: "イオン化Ca低下（アルカレミア・アルカリ負荷・キレート等に伴うテタニー/循環抑制リスク）",
+    causeOptions: [
+      "PaCO2 36 mmHgへの正常化に基づく理想的な人工呼吸管理状態と特発性てんかん",
+      "慢性高CO2血症の腎性代償で上昇していたHCO3-（33）が残存したままPaCO2を急激に下げたことによる医原性アルカレミア（高二酸化炭素血症改善後アルカローシス）と脳血管収縮・低Ca性痙攣",
+      "肺炎進行による敗血症性乳酸アシドーシスの増悪",
+      "CO2ナルコーシスの再燃による急性呼吸性アシドーシス",
+      "重炭酸ナトリウム誤投与による外因性アルカローシス"
+    ],
+    actionOptions: [
+      "現在の高い分時換気量設定の維持と抗てんかん薬のみの投与",
+      "人工呼吸器の分時換気量（呼吸回数・一回換気量）の速やかな減量による普段のPaCO2（55〜60 mmHg、pH 7.35〜7.40）への復帰、および生理食塩水・KCl・Caの補正",
+      "緊急血液透析による血中重炭酸イオンの直接除去",
+      "換気回数を30回/分へさらに増量する過換気療法",
+      "8.4%炭酸水素ナトリウムの追加静注"
+    ],
+    correctCause: [1],
+    correctAction: [1],
+    explanation: "【計算プロセス：Respica掲載「高二酸化炭素の急激な補正」の落とし穴】<br>慢性呼吸性アシドーシスで腎性に上昇していたHCO3-（33〜34 mmol/L）は数日かけないと腎から排泄されません。人工呼吸器でPaCO2を88 → 36 mmHgへ一気に下げると、高HCO3-が取り残されてpH 7.59の重篤なアルカレミア（Post-hypercapnic metabolic alkalosis）が顕在化し、強い脳血管収縮とイオン化Ca急減（0.80 mmol/L）から全身痙攣と血圧低下を引き起こします。換気量を落として患者のベースラインPaCO2・正常pHに戻します。"
+  },
+  {
+    id: 60,
+    level: "上級",
+    title: "No.60：重症低Na血症（108 mEq/L）＋高K・尿毒症性アシドーシスに対するCRRT（持続透析）設計",
+    scenario: "52歳女性（体重50kg、総体液量25L）。アルコール使用障害と栄養不良あり。急性腎障害（無尿）と意識障害でICU入室。重度の慢性低ナトリウム血症（108 mEq/L）、高カリウム血症（6.6 mEq/L）、高度代謝性アシドーシスを認め、腎代替療法（透析）が必要と判断された。",
+    vitals: "BP 98/58 mmHg | HR 92 /min | RR 24 /min | SpO2 98% (room air) | JCS II-10",
+    labs: {
+      pH: "7.20", PaCO2: "24", PaO2: "96", HCO3: "9.0", BE: "-18.0",
+      Na: "108", K: "6.6", Cl: "76", Lac: "1.8 mmol/L", Alb: "2.8", BUN: "92 mg/dL", Cr: "6.8 mg/dL"
+    },
+    step1: "アシデミア（pH < 7.35）",
+    step2: "代謝性アシドーシス",
+    step3: "AG開大",
+    step4: "予測範囲内の適切な呼吸性代償",
+    step5: "単一障害（隠れた第2・第3の代謝性異常なし）",
+    causeOptions: [
+      "標準透析液（Na 140）での急速血液透析が安全に実施可能な急性高ナトリウム血症",
+      "無尿性AKIによる尿毒症性アシドーシス（AGMA）・重症高K血症と、浸透圧性脱髄症候群（ODS）超高リスクの重症慢性低ナトリウム血症（108 mEq/L）の合併",
+      "高血糖に伴う偽性低ナトリウム血症とケトアシドーシス",
+      "心因性多飲症単独による無症候性低ナトリウム血症",
+      "呼吸筋麻痺による急性呼吸性アシドーシス"
+    ],
+    actionOptions: [
+      "標準透析液（Na 140 mEq/L）・血流量200 mL/分を用いた4時間の通常間欠的血液透析（HD）の実施",
+      "透析開始前の8.4%炭酸水素ナトリウム（Na 1,000 mEq/L）250mLの急速静注",
+      "カルシウム静注・GI療法を行いつつ持続的腎代替療法（CRRT）を選択し、透析液の5%ブドウ糖液による低Na希釈（または返血回路への5%ブドウ糖液持続注入）によってNa上昇速度を24時間あたり6〜8 mEq/L以内に制御する管理",
+      "低ナトリウム血症が正常化するまでの高カリウム血症（6.6 mEq/L）治療の完全保留",
+      "3%高張食塩水500mLの急速静注後に開始する通常血液透析"
+    ],
+    correctCause: [1],
+    correctAction: [2],
+    explanation: "【計算プロセス：INTENSIVIST掲載「透析が必要な低Na血症・酸塩基平衡異常」の極意】<br>① pH 7.20、HCO3- 9.0、実測AG = 108 - (76 + 9.0) = 23.0 mEq/L（Alb 2.8による補正AG = 26.0：AG開大、尿毒症性AGMA）。予測PaCO2 = 22.0 mmHg（実測24 mmHg）。補正HCO3- = 9.0 + (26.0 - 12) = 23.0 mmol/L（基準範囲内）。<br>② 同時に重度慢性低Na血症（108 mEq/L：アルコール・低栄養を伴うODS超高リスク）と重症高K血症（6.6 mEq/L）が存在します。<br>③ 市販の標準透析液（Na 140 mEq/L）で通常のHDを行ったり8.4%メイロン（Na 1,000 mEq/L）を急速投与すると、数時間で血清Naが急上昇し致死的な浸透圧性脱髄症候群（ODS）を発症します。CRRTを選択し、5%ブドウ糖液による透析液希釈または回路内持続注入でNa補正速度を緩徐にコントロールしながらアシドーシスと高Kを治療します。"
+  }
+);
+filterCases();
+</script>
+<!-- ▼ 起動時1秒間リビジョン表示（</body>の直前に貼り付け） ▼ -->
+<div id="revSplashOverlay" style="position:fixed;inset:0;z-index:99999;background:#090d16;display:flex;justify-content:center;align-items:center;transition:opacity 0.25s ease;">
+  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:0.15em;color:#38bdf8;border:2px solid #334155;background:#0f172a;padding:18px 34px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.75);">
+    REV. 26.11.18
+  </div>
+</div>
+<script>
+(function() {
+  const splash = document.getElementById("revSplashOverlay");
+  if (!splash) return;
+  setTimeout(function() {
+    splash.style.opacity = "0";
+    splash.style.pointerEvents = "none";
+    setTimeout(function() {
+      splash.remove();
+    }, 250);
+  }, 3000);
+})();
+</script>
+<!-- ▲ 起動時1秒間リビジョン表示ここまで ▲ -->
+</body>
+</html>
